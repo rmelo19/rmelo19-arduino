@@ -1,0 +1,39 @@
+[submodule "libraries/Adafruit_BluefruitLE_nRF51"]
+	path = libraries/Adafruit_BluefruitLE_nRF51
+	url = https://github.com/adafruit/Adafruit_BluefruitLE_nRF51.git
+[submodule "libraries/Adafruit_NeoPixel"]
+	path = libraries/Adafruit_NeoPixel
+	url = https://github.com/adafruit/Adafruit_NeoPixel.git
+[submodule "libraries/Adafruit_BNO055"]
+	path = libraries/Adafruit_BNO055
+	url = https://github.com/adafruit/Adafruit_BNO055.git
+[submodule "libraries/Adafruit_ESP8266"]
+	path = libraries/Adafruit_ESP8266
+	url = https://github.com/adafruit/Adafruit_ESP8266.git
+[submodule "libraries/Adafruit_Sensor"]
+	path = libraries/Adafruit_Sensor
+	url = https://github.com/adafruit/Adafruit_Sensor.git
+[submodule "libraries/Adafruit-Trinket-USB"]
+	path = libraries/Adafruit-Trinket-USB
+	url = https://github.com/adafruit/Adafruit-Trinket-USB.git
+[submodule "libraries/Adafruit-PN532"]
+	path = libraries/Adafruit-PN532
+	url = https://github.com/adafruit/Adafruit-PN532.git
+[submodule "libraries/CapacitiveSensor"]
+	path = libraries/CapacitiveSensor
+	url = https://github.com/PaulStoffregen/CapacitiveSensor.git
+[submodule "libraries/Arduino-EEPROMEx"]
+	path = libraries/Arduino-EEPROMEx
+	url = https://github.com/thijse/Arduino-EEPROMEx.git
+[submodule "libraries/RCArduinoFastLib"]
+	path = libraries/RCArduinoFastLib
+	url = https://github.com/scottjgibson/RCArduinoFastLib.git
+[submodule "libraries/TinyWireM"]
+	path = libraries/TinyWireM
+	url = https://github.com/adafruit/TinyWireM.git
+[submodule "libraries/DueFlashStorage"]
+	path = libraries/DueFlashStorage
+	url = https://github.com/sebnil/DueFlashStorage.git
+[submodule "libraries/Arduino-IRremote"]
+	path = libraries/Arduino-IRremote
+	url = https://github.com/z3t0/Arduino-IRremote.git
