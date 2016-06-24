@@ -37,3 +37,6 @@
 [submodule "libraries/Arduino-IRremote"]
 	path = libraries/Arduino-IRremote
 	url = https://github.com/z3t0/Arduino-IRremote.git
+[submodule "libraries/AMS_AS5048B"]
+	path = libraries/AMS_AS5048B
+	url = https://github.com/sosandroid/AMS_AS5048B.git
