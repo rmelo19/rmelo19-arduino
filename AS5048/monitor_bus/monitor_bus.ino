@@ -1,7 +1,7 @@
 #include <Wire.h>
 
 // Slave address;
-#define SLAVE_ADRR 0b0000110
+#define SLAVE_ADRR 0x20
 // 0b0000110, BCAST_ENABLE
 // 0x60, BAROMETER
 

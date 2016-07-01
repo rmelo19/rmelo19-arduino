@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+// extern volatile uint8_t* messages;
+
 void enet_init();
 
 typedef enum { ENET_LINK_DOWN, ENET_LINK_UP } enet_link_status_t;
@@ -20,7 +22,7 @@ void enet_write_phy_reg(const uint8_t reg_idx, const uint16_t reg_val);
 
 uint_fast8_t enet_process_rx_ring();
 
-void enet_send_state();
+void enet_send_state(volatile uint8_t *, uint16_t msgLen);
 
 #endif
 

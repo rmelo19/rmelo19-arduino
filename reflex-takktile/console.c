@@ -1,5 +1,5 @@
 #include "console.h"
-#include "stm32f4xx.h"
+#include "./stm32/stm32f4xx.h"
 
 // pin connections
 // PE0 = uart8 TX on AF8

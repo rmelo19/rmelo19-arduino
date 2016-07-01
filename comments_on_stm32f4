@@ -1,0 +1,63 @@
+g_tactile_i2c_async_address
+g_tactile_i2c_async_data_len
+g_tactile_i2c_async_data_txrx_idx
+g_tactile_i2c_async_start_us[port]
+g_tactile_internal_i2c_status[port]
+g_tactile_bridged_i2c_status[bridge]
+
+files
+takktile_example_code.py
+reflex_driver_node.cpp
+reflex_hand.h
+reflex_hand.cpp
+
+
+
+i2c->SR1
+// SR1 -> Status Register 1
+
+i2c->I2C_SR1_SB
+// I2C_SR1_SB -> Status Register 1, Start Bit, 0 if no start condition, 1 otherwise
+
+i2c->DR
+// i2c->DR -> Data Register
+
+i2c->I2C_SR1_ADDR
+// I2C_SR1_ADDR -> Status Register 1, address
+
+i2c->I2C_SR1_AF
+// I2C_SR1_AF -> Status Register 1, acknowledge failure
+
+i2c->I2C_SR1_BTF
+// I2C_SR1_BTF -> Status Register 1, byte transfer finished
+
+i2c->SR2
+// SR2 -> Status Register 2
+
+i2c->I2C_SR2_BUSY
+// I2C_SR2_BUSY -> Status Register 2, checks if there is communication on going on the bus
+
+
+SPI4->DR
+// SPI4->DR -> Data Register for SPI4
+
+SPI4->SR
+// SPI4->SR -> Status Register for SPI4
+
+SPI4->SPI_SR_TXE
+// SPI_SR_TXE -> Transmit Buffer Empty
+
+
+SPI4->SPI_SR_RXNE
+// SPI_SR_RXNE -> Receive Buffer Not Empty
+
+
+GPIOE->BSRR
+// BSRR -> Bit set and reset register
+
+
+// #define PORTE_ENC_CS   11
+// #define PORTE_LED0 3
+// #define PORTE_LED1 4
+// #define PORTB_LED2 10
+// #define PORTE_LED3 15
