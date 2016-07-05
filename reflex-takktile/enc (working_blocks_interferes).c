@@ -116,21 +116,20 @@ void enc_poll_nonblocking_tick(const uint8_t bogus __attribute__((unused)))
       // I2C
       //######################################
       #ifdef I2C_ENC
-      if (!isBusyI2C3())
-      {
-        // I2C communication
-        // ############################################################################################
-        writeRegister(AS5048_ADDRESS, AS5048B_ANGLLSB_REG);
+      
 
-        // Request and read 2 bytes
-        uint8_t valueRead[2000];
-        ledsPattern(OFF, ON, ON, OFF);
-        readBytes(AS5048_ADDRESS, 2, valueRead);
-        g_state.encoders[0] = (((uint16_t) valueRead[0] << 6) + ((uint16_t) (valueRead[1] & 0x3F)));
+      // I2C communication
+      // ############################################################################################
+      writeRegister(AS5048_ADDRESS, AS5048B_ANGLLSB_REG);
 
-        enc_poll_state = EPS_SPI_TXRX_DONE;
-        ledsPattern(ON, OFF, OFF, ON);
-      }
+      // Request and read 2 bytes
+      uint8_t valueRead[2000];
+      ledsPattern(OFF, ON, ON, OFF);
+      readBytes(AS5048_ADDRESS, 2, valueRead);
+      g_state.encoders[0] = (((uint16_t) valueRead[0] << 6) + ((uint16_t) (valueRead[1] & 0x3F)));
+
+      enc_poll_state = EPS_SPI_TXRX_DONE;
+      ledsPattern(ON, OFF, OFF, ON);
       // SPI
       //######################################
       #else

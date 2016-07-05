@@ -37,7 +37,7 @@ void receivedByte(int num_bytes)
     {
       Serial.print(" 0x");
       Serial.print(Wire.read(), HEX);
-    Wire.read();
+//    Wire.read();
     }
     Serial.println();
   }
@@ -49,8 +49,8 @@ void receivedByte(int num_bytes)
 
 void receivedRequest(void)
 {
-//  Serial.println("R"); // Serial.println("Received request...");
-  Wire.write(0x00);
-  Wire.write(0x00);
+  uint8_t info[2] = {0x0A, 0x0B};
+  Serial.println(Wire.write(info, 2));
+    
 }
 

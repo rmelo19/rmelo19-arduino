@@ -35,10 +35,6 @@
 #define AS5048B_ANGLMSB_REG 0xFE //bits 0..7
 #define AS5048B_ANGLLSB_REG 0xFF //bits 0..5
 
-// AS5048 CONSTANTS
-#define AS5048B_RESOLUTION 16384.0 //14 bits
-
-
 // I2C PORTS ON MICROCONTROLLER
 #define PORTB_I2C1_SCL 6
 #define PORTB_I2C1_SDA 7
@@ -51,9 +47,6 @@
 // FUNCTION PROTOTYPES
 void ledsPattern(int, int, int, int);
 void udelay(int);
-void writeRegister(uint8_t address, uint8_t registerAddress);
-void readBytes(uint8_t addresss, int numBytes, uint8_t* values);
-bool isBusyI2C3(void);
 
 
 
@@ -106,35 +99,96 @@ int main()
   I2C3->TRISE |= I2C_TRISE;   // = I2C_TRISE = (APB_MHZ * 200 / 1000 + 1), maximum rise time
   I2C3->CR1   |= I2C_CR1_PE;  // peripheral enable
 
-  udelay(1000000);
+  
 
+  udelay(1000000);
+  // ledsPattern(ON, ON, ON, ON); udelay(1000000);
+  // ledsPattern(OFF, ON, ON, ON); udelay(1000000);
+  // ledsPattern(ON, OFF, ON, ON); udelay(1000000);
+  // ledsPattern(ON, ON, OFF, ON); udelay(1000000);
+  // ledsPattern(ON, ON, ON, OFF); udelay(1000000);
+  // ledsPattern(OFF, OFF, OFF, OFF); udelay(1000000);
+
+  // bool timeIsOut = false;
+  // int initialTime = 0;
   bool error = false;
   while(1)
   {
-		// I2C communication
-		// ############################################################################################
-		writeRegister(AS5048_ADDRESS, AS5048B_ANGLLSB_REG);
+	  // I2C communication
+	  // ############################################################################################
+	  // starting i2c communication on I2c bus 3 
+	  I2C3->CR1 |=  I2C_CR1_START; // generating start condition
+	  I2C3->SR1 &= ~I2C_SR1_AF;    // clearing acknowledge
+	  ledsPattern(ON, ON, OFF, ON);
 
-		// Request and read 2 bytes
-		uint8_t valueRead[2000];
-		readBytes(AS5048_ADDRESS, 2, valueRead);
+	  while (!(I2C3->SR1 & I2C_SR1_SB));
+	  // initialTime = SYSTIME; while (!(I2C3->SR1 & I2C_SR1_SB) && !timeout(1000, initialTime));
+	  ledsPattern(OFF, ON, ON, ON);
 
-		udelay(200000);
+	  // Send address with write bit
+	  I2C3->DR = ((uint8_t) ARDUINO_7BIT_ADDR << 1); // puts the address to be sent on the buffer using global variable
+	  
+	  while(!(I2C3->SR1 & (I2C_SR1_ADDR))); // wait for address transmission
+	  I2C3->SR2; // un-stretch clock by reading here (?)
+	  ledsPattern(OFF, OFF, ON, ON);
 
-		// uint16_t readValue;
-		// readValue = (((uint16_t) Wire.read()) << 6) ;
-		// readValue += (uint16_t) (Wire.read() & 0x3F);
+	  I2C3->DR = AS5048B_ANGLMSB_REG; // Send the address of the desired register
+	  
+	  while (!(I2C3->SR1 & (I2C_SR1_BTF | I2C_SR1_AF)));
+	  ledsPattern(OFF, OFF, OFF, ON);
 
-		double angle;
-		angle = (double) (((((uint16_t) valueRead[0] << 6) + ((uint16_t) (valueRead[1] & 0x3F))) * 360.0) / AS5048B_RESOLUTION);
-		bytesToSend = sprintf(buffer, "Found error: %d, value read: %2x %2x %6.2f", (int) error, valueRead[0], valueRead[1], angle);
+	  I2C3->CR1 |= I2C_CR1_STOP;
 
-		if (enet_get_link_status() == ENET_LINK_UP)
-		{
-			volatile uint8_t* messages = (uint8_t*) buffer;
-			enet_send_state(messages, bytesToSend);
-		}
-		enet_process_rx_ring();
+
+	  while (I2C3->SR2 & I2C_SR2_BUSY); // wait until bus is not busy anymore
+	  ledsPattern(OFF, OFF, OFF, OFF);
+
+	  // Send the address with the read bit
+
+	  // starting I2C3 communication
+	  I2C3->CR1 |=  I2C_CR1_START;
+	  I2C3->SR1 &= ~I2C_SR1_AF;
+	  
+	  while (!(I2C3->SR1 & I2C_SR1_SB));
+	  // ledsPattern(ON, OFF, OFF, OFF);
+	  ledsPattern(ON, ON, ON, ON);	
+
+	  // // Send address with read bit
+	  I2C3->DR = ((uint8_t) ARDUINO_7BIT_ADDR << 1) + 1; // puts the address to be sent on the buffer using global variable
+	  
+	  while (!(I2C3->SR1 & (I2C_SR1_ADDR)));
+	  I2C3->SR2; // un-stretch clock by reading here (?)
+	  ledsPattern(ON, ON, OFF, OFF);
+	  
+	  // Request and read 2 bytes
+	  uint8_t valueRead[2] = {0, 0};
+	  
+	  I2C3->CR1 |=  I2C_CR1_ACK; // multi-byte read. Acknowledge enable
+	  while (!(I2C3->SR1 & I2C_SR1_RXNE));
+	  valueRead[0] = I2C3->DR;
+	  I2C3->CR1 |=  I2C_CR1_ACK; // multi-byte read. Acknowledge enable
+	  ledsPattern(ON, ON, ON, OFF);
+
+	  while (!(I2C3->SR1 & I2C_SR1_RXNE));
+	  valueRead[1] = I2C3->DR;
+	  I2C3->CR1 &= ~I2C_CR1_ACK; // last read
+	  ledsPattern(ON, ON, ON, ON); 
+	  I2C3->CR1 |= I2C_CR1_STOP; 
+	 
+
+	  while (I2C3->SR2 & I2C_SR2_BUSY); // wait until bus is not busy anymore
+	  ledsPattern(OFF, ON, ON, OFF);
+
+	  udelay(500000);
+
+  	 bytesToSend = sprintf(buffer, "Found error: %d, value read: %x %x", (int) error, valueRead[0], valueRead[1]);
+
+	  if (enet_get_link_status() == ENET_LINK_UP)
+      {
+      	volatile uint8_t* messages = (uint8_t*) buffer;
+        enet_send_state(messages, bytesToSend);
+      }
+      enet_process_rx_ring();
   }
   return 0;
 }
@@ -166,66 +220,3 @@ void udelay(int utime)
 // {
 // 	return(SYSTIME - initialTime > utime);
 // }
-
-void writeRegister(uint8_t address, uint8_t registerAddress)
-{
-	// starting i2c communication on I2c bus 3 
-	I2C3->CR1 |=  I2C_CR1_START; // generating start condition
-	I2C3->SR1 &= ~I2C_SR1_AF;    // clearing acknowledge
-
-	while (!(I2C3->SR1 & I2C_SR1_SB));
-	// initialTime = SYSTIME; while (!(I2C3->SR1 & I2C_SR1_SB) && !timeout(1000, initialTime));
-
-	// Send address with write bit
-	I2C3->DR = ((uint8_t) address << 1); // puts the address to be sent on the buffer using global variable
-
-	while(!(I2C3->SR1 & (I2C_SR1_ADDR))); // wait for address transmission
-	I2C3->SR2; // un-stretch clock by reading here (?)
-
-	I2C3->DR = registerAddress; // Send the address of the desired register
-
-	while (!(I2C3->SR1 & (I2C_SR1_BTF | I2C_SR1_AF)));
-
-	I2C3->CR1 |= I2C_CR1_STOP;
-
-
-	while (isBusyI2C3()); // wait until bus is not busy anymore	  
-}
-
-
-void readBytes(uint8_t address, int numBytes, uint8_t* values)
-{
-	// Send the address with the read bit
-	// starting I2C3 communication
-	I2C3->CR1 |=  I2C_CR1_START;
-	I2C3->SR1 &= ~I2C_SR1_AF;
-
-	while (!(I2C3->SR1 & I2C_SR1_SB));	
-
-	// // Send address with read bit
-	I2C3->DR = ((uint8_t) address << 1) + 1; // puts the address to be sent on the buffer using global variable
-
-	while (!(I2C3->SR1 & (I2C_SR1_ADDR)));
-	I2C3->SR2; // un-stretch clock by reading here (?)
-
-	I2C3->CR1 |=  I2C_CR1_ACK; // multi-byte read. Acknowledge enable
-
-	for (int i = 0; i < numBytes-1; i++)
-	{
-		while (!(I2C3->SR1 & I2C_SR1_RXNE));
-		values[i] = I2C3->DR;
-		I2C3->CR1 |=  I2C_CR1_ACK; // multi-byte read. Acknowledge enable
-	}
-	while (!(I2C3->SR1 & I2C_SR1_RXNE));
-	values[numBytes-1] = I2C3->DR;
-	I2C3->CR1 &= ~I2C_CR1_ACK; // last read
-
-	I2C3->CR1 |= I2C_CR1_STOP;
-
-	while (isBusyI2C3()); // wait until bus is not busy anymore
-}
-
-bool isBusyI2C3()
-{
-	return I2C3->SR2 & I2C_SR2_BUSY;
-}

@@ -35,10 +35,6 @@
 #define AS5048B_ANGLMSB_REG 0xFE //bits 0..7
 #define AS5048B_ANGLLSB_REG 0xFF //bits 0..5
 
-// AS5048 CONSTANTS
-#define AS5048B_RESOLUTION 16384.0 //14 bits
-
-
 // I2C PORTS ON MICROCONTROLLER
 #define PORTB_I2C1_SCL 6
 #define PORTB_I2C1_SDA 7
@@ -111,30 +107,24 @@ int main()
   bool error = false;
   while(1)
   {
-		// I2C communication
-		// ############################################################################################
-		writeRegister(AS5048_ADDRESS, AS5048B_ANGLLSB_REG);
+	  // I2C communication
+	  // ############################################################################################
+	  writeRegister(ARDUINO_7BIT_ADDR, AS5048B_ANGLLSB_REG);
 
-		// Request and read 2 bytes
-		uint8_t valueRead[2000];
-		readBytes(AS5048_ADDRESS, 2, valueRead);
+	  // Request and read 2 bytes
+	  uint8_t valueRead[2000];
+	  readBytes(ARDUINO_7BIT_ADDR, 2, valueRead);
 
-		udelay(200000);
+	  udelay(500000);
 
-		// uint16_t readValue;
-		// readValue = (((uint16_t) Wire.read()) << 6) ;
-		// readValue += (uint16_t) (Wire.read() & 0x3F);
+  	  bytesToSend = sprintf(buffer, "Found error: %d, value read: %x %x", (int) error, valueRead[0], valueRead[1]);
 
-		double angle;
-		angle = (double) (((((uint16_t) valueRead[0] << 6) + ((uint16_t) (valueRead[1] & 0x3F))) * 360.0) / AS5048B_RESOLUTION);
-		bytesToSend = sprintf(buffer, "Found error: %d, value read: %2x %2x %6.2f", (int) error, valueRead[0], valueRead[1], angle);
-
-		if (enet_get_link_status() == ENET_LINK_UP)
-		{
-			volatile uint8_t* messages = (uint8_t*) buffer;
-			enet_send_state(messages, bytesToSend);
-		}
-		enet_process_rx_ring();
+	  if (enet_get_link_status() == ENET_LINK_UP)
+      {
+      	volatile uint8_t* messages = (uint8_t*) buffer;
+        enet_send_state(messages, bytesToSend);
+      }
+      enet_process_rx_ring();
   }
   return 0;
 }

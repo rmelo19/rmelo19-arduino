@@ -1,5 +1,5 @@
 #include "enet.h"
-#include "stm32f4xx.h"
+#include "./stm32/stm32f4xx.h"
 #include <stdio.h>
 #include <string.h>
 #include "dmxl.h"
@@ -7,6 +7,7 @@
 #include "state.h"
 #include "systime.h"
 #include "delay.h"
+
 
 // declare the pin numbers
 #define PORTA_ETH_REFCLK 1
@@ -576,10 +577,10 @@ static bool eth_dispatch_udp(const uint8_t *data, const uint16_t len)
 // todo: be smarter about multicast group choice
 #define MCAST_IP 0xe000007c
 
-void enet_send_state()
+void enet_send_state(volatile uint8_t* messages, uint16_t msgLen)
 {
-  volatile state_t tx_state = g_state; // make a local copy to ensure coherence
-  enet_send_udp_mcast(MCAST_IP, 11333,
-                      (uint8_t *)&tx_state, sizeof(tx_state));
+  // uint8_t mesg2[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+  // volatile uint8_t* tx_state = messages; // make a local copy to ensure coherence
+  enet_send_udp_mcast(MCAST_IP, 11333, (uint8_t *)messages, msgLen);
 }
 

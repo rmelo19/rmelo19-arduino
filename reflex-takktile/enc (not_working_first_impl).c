@@ -27,25 +27,6 @@
 // LED
 static const uint8_t LIGHT_LED_THRESHOLD = 100;
 
-#define I2C_ENC true
-#define AS5048_ADDRESS 0x40 // 0b10000 + ( A1 & A2 to GND) -> 0b1000000
-#define AS5048_ADDRESS_READ 0b01000001 // 0x41
-#define AS5048_ADDRESS_WRITE 0b01000000 // 0x40
-#define AS5048B_ANGLMSB_REG 0xFE //bits 0..7
-#define AS5048B_ANGLLSB_REG 0xFF //bits 0..5
-
-#define ARDUINO_7BIT_ADDR 0x20 
-
-#define ON  1
-#define OFF 0
-
-// FUNCTION PROTOTYPES, rmelo19
-void udelay(int);
-void ledsPattern(int led1, int led2, int led3, int led4);
-void writeRegister(uint8_t address, uint8_t registerAddress);
-void readBytes(uint8_t addresss, int numBytes, uint8_t* values);
-int isBusyI2C3(void);
-
 enc_async_poll_state_t enc_poll_state = { EPS_DONE };
 
 void enc_init()
@@ -108,6 +89,15 @@ void enc_poll_nonblocking_tick(const uint8_t bogus __attribute__((unused)))
   static uint8_t all_the_same_count = 0;
   static uint8_t same_count[3] = {0};
 
+// #define I2C_ENC true
+#define AS5048_ADDRESS 0x40 // 0b10000 + ( A1 & A2 to GND) -> 0b1000000
+#define AS5048_ADDRESS_READ 0b01000001 // 0x41
+#define AS5048_ADDRESS_WRITE 0b01000000 // 0x40
+#define AS5048B_ANGLMSB_REG 0xFE //bits 0..7
+#define AS5048B_ANGLLSB_REG 0xFF //bits 0..5
+
+#define ARDUINO_7BIT_ADDR 0x20 
+
   switch(enc_poll_state)
   {
     // Initial State 
@@ -116,21 +106,126 @@ void enc_poll_nonblocking_tick(const uint8_t bogus __attribute__((unused)))
       // I2C
       //######################################
       #ifdef I2C_ENC
-      if (!isBusyI2C3())
-      {
-        // I2C communication
-        // ############################################################################################
-        writeRegister(AS5048_ADDRESS, AS5048B_ANGLLSB_REG);
 
-        // Request and read 2 bytes
-        uint8_t valueRead[2000];
-        ledsPattern(OFF, ON, ON, OFF);
-        readBytes(AS5048_ADDRESS, 2, valueRead);
-        g_state.encoders[0] = (((uint16_t) valueRead[0] << 6) + ((uint16_t) (valueRead[1] & 0x3F)));
+      // defining i2c port
+      // const uint_fast8_t port = 0;
+      // I2C_TypeDef *i2c;
+      // if (port == 0)
+        // i2c = I2C1;
+      // else
+        // i2c = I2C3;
+      // i2c = I2C1;
+      leds_on(0);
+      leds_on(1);
+      leds_on(2);
+      leds_on(3);
 
-        enc_poll_state = EPS_SPI_TXRX_DONE;
-        ledsPattern(ON, OFF, OFF, ON);
-      }
+      uint32_t mytime;
+      
+
+      // starting i2c communication
+      I2C3->CR1 |=  I2C_CR1_START; // generating start condition
+      I2C3->SR1 &= ~I2C_SR1_AF; // clearing acknowledge
+      mytime = SYSTIME;
+      while (!(I2C3->SR1 & I2C_SR1_SB)){}
+      if (SYSTIME - mytime < 1000000){} // rmelo19
+      leds_off(0);
+      leds_on(1);
+      leds_on(2);
+      leds_on(3);
+      
+      // Send address with write bit
+      I2C3->DR = ((uint8_t) ARDUINO_7BIT_ADDR << 1); // puts the address to be sent on the buffer using global variable
+      mytime = SYSTIME;
+      // while (!(I2C3->SR1 & (I2C_SR1_ADDR | I2C_SR1_AF))){} // wait for address transmission
+      // while (!(I2C3->SR1 & (I2C_SR1_AF))){} // check if acknowledge received
+      while (!(I2C3->SR1 & (I2C_SR1_ADDR))){}
+      I2C3->SR2; // un-stretch clock by reading here (?)
+      // while(SYSTIME - mytime < 1000000);
+      leds_off(0);
+      leds_off(1);
+      leds_on(2);
+      leds_on(3);
+
+      I2C3->DR = AS5048B_ANGLLSB_REG; // Send the address of the desired register
+      mytime = SYSTIME;
+      while (!(I2C3->SR1 & (I2C_SR1_BTF | I2C_SR1_AF))){}
+      // while(SYSTIME - mytime < 1000000);
+      leds_off(0);
+      leds_off(1);
+      leds_off(2);
+      leds_on(3);
+
+      I2C3->CR1 |= I2C_CR1_STOP;
+
+
+      mytime = SYSTIME;
+      while (I2C3->SR2 & I2C_SR2_BUSY) // wait until bus is not busy anymore
+      // while(SYSTIME - mytime < 1000000);
+      leds_off(0);
+      leds_off(1);
+      leds_off(2);
+      leds_off(3);
+
+      // Send the address with the read bit
+
+      // starting I2C3 communication
+      I2C3->CR1 |=  I2C_CR1_START;
+      I2C3->SR1 &= ~I2C_SR1_AF;
+      mytime = SYSTIME;
+      while (!(I2C3->SR1 & I2C_SR1_SB)){}
+      // while(SYSTIME - mytime < 1000000);
+      leds_on(0);
+      leds_off(1);
+      leds_off(2);
+      leds_off(3);
+
+      // Send address with read bit
+      I2C3->DR = AS5048_ADDRESS_READ; // puts the address to be sent on the buffer using global variable
+      mytime = SYSTIME;
+      while (!(I2C3->SR1 & (I2C_SR1_ADDR | I2C_SR1_AF))){}
+      while (!(I2C3->SR1 & (I2C_SR1_AF))){} // check if acknowledge received
+      I2C3->SR2; // un-stretch clock by reading here (?)
+
+      // while(SYSTIME - mytime < 1000000);
+      leds_on(0);
+      leds_on(1);
+      leds_off(2);
+      leds_off(3);
+      
+      // Request and read 2 bytes
+      // I2C3->CR1 &= ~I2C_CR1_ACK; // last read
+      I2C3->CR1 |=  I2C_CR1_ACK; // multi-byte read. Acknowledge enable
+      mytime = SYSTIME;
+      while (!(I2C3->SR1 & I2C_SR1_RXNE)){}
+      g_state.encoders[0] = I2C3->DR;
+      // while(SYSTIME - mytime < 1000000);
+      leds_on(0);
+      leds_on(1);
+      leds_on(2);
+      leds_off(3);
+
+
+      I2C3->CR1 &= ~I2C_CR1_ACK; // last read
+      mytime = SYSTIME;
+      while (!(I2C3->SR1 & I2C_SR1_RXNE)){}
+      g_state.encoders[0] = I2C3->DR;
+      // while(SYSTIME - mytime < 1000000);
+      leds_on(0);
+      leds_on(1);
+      leds_on(2);
+      leds_on(3);
+      
+      I2C3->CR1 |= I2C_CR1_STOP; 
+      mytime = SYSTIME;
+      while (I2C3->SR2 & I2C_SR2_BUSY) // wait until bus is not busy anymore
+      // while(SYSTIME - mytime < 1000000);
+      leds_off(0);
+      leds_on(1);
+      leds_on(2);
+      leds_off(3);
+
+      enc_poll_state = EPS_SPI_TXRX_DONE;
       // SPI
       //######################################
       #else
@@ -280,95 +375,4 @@ void enc_poll_nonblocking_tick(const uint8_t bogus __attribute__((unused)))
       break;
   }
 }
-void ledsPattern(int led1, int led2, int led3, int led4)
-{
-  int leds[4] = {led1, led2, led3, led4};
 
-  for(int i=0; i<4;i++)
-  {
-    if (leds[i] == ON)
-    {
-      leds_on(i);
-    }
-    else
-    {
-      leds_off(i);
-    }
-  }
-}
-
-void udelay(int utime)
-{
-  int mytime = SYSTIME;
-  while(SYSTIME - mytime < utime);
-}
-// bool timeout(int utime, int initialTime)
-// {
-//  return(SYSTIME - initialTime > utime);
-// }
-
-void writeRegister(uint8_t address, uint8_t registerAddress)
-{
-  // starting i2c communication on I2c bus 3 
-  I2C3->CR1 |=  I2C_CR1_START; // generating start condition
-  I2C3->SR1 &= ~I2C_SR1_AF;    // clearing acknowledge
-
-  ledsPattern(ON, ON, ON, ON);
-  while (!(I2C3->SR1 & I2C_SR1_SB));
-  // initialTime = SYSTIME; while (!(I2C3->SR1 & I2C_SR1_SB) && !timeout(1000, initialTime));
-
-  // Send address with write bit
-  I2C3->DR = ((uint8_t) address << 1); // puts the address to be sent on the buffer using global variable
-
-  ledsPattern(ON, ON, ON, OFF);
-  while(!(I2C3->SR1 & (I2C_SR1_ADDR))); // wait for address transmission
-  I2C3->SR2; // un-stretch clock by reading here (?)
-
-  I2C3->DR = registerAddress; // Send the address of the desired register
-
-  ledsPattern(ON, ON, OFF, ON);
-  while (!(I2C3->SR1 & (I2C_SR1_BTF | I2C_SR1_AF)));
-
-  I2C3->CR1 |= I2C_CR1_STOP;
-
-  ledsPattern(ON, OFF, ON, ON);
-  while (isBusyI2C3()); // wait until bus is not busy anymore   
-}
-
-
-void readBytes(uint8_t address, int numBytes, uint8_t* values)
-{
-  // Send the address with the read bit
-  // starting I2C3 communication
-  I2C3->CR1 |=  I2C_CR1_START;
-  I2C3->SR1 &= ~I2C_SR1_AF;
-
-  while (!(I2C3->SR1 & I2C_SR1_SB));  
-
-  // // Send address with read bit
-  I2C3->DR = ((uint8_t) address << 1) + 1; // puts the address to be sent on the buffer using global variable
-
-  while (!(I2C3->SR1 & (I2C_SR1_ADDR)));
-  I2C3->SR2; // un-stretch clock by reading here (?)
-
-  I2C3->CR1 |=  I2C_CR1_ACK; // multi-byte read. Acknowledge enable
-
-  for (int i = 0; i < numBytes-1; i++)
-  {
-    while (!(I2C3->SR1 & I2C_SR1_RXNE));
-    values[i] = I2C3->DR;
-    I2C3->CR1 |=  I2C_CR1_ACK; // multi-byte read. Acknowledge enable
-  }
-  while (!(I2C3->SR1 & I2C_SR1_RXNE));
-  values[numBytes-1] = I2C3->DR;
-  I2C3->CR1 &= ~I2C_CR1_ACK; // last read
-
-  I2C3->CR1 |= I2C_CR1_STOP;
-
-  while (isBusyI2C3()); // wait until bus is not busy anymore
-}
-
-int isBusyI2C3()
-{
-  return I2C3->SR2 & I2C_SR2_BUSY;
-}

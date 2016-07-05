@@ -13,8 +13,10 @@ CC=$(TC)gcc
 # stand_alone_i2c.c \
 # leds.c \
 # pin.c
-SRCS=stand_alone_i2c.c startup.c leds.c console.c stubs.c enet.c systime.c dmxl.c fan.c \
-     tactile.c pin.c enc.c state.c async_poll.c delay.c error.c
+# stand_alone_i2c.c
+SRCS=main.c startup.c leds.c console.c stubs.c enet.c systime.c dmxl.c fan.c \
+     tactile.c pin.c enc.c state.c async_poll.c delay.c error.c 
+
 
 DEPS=leds.h console.h enet.h systime.h dmxl.h fan.h tactile.h pin.h enc.h state.h async_poll.h delay.h error.h
 

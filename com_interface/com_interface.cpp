@@ -112,13 +112,27 @@ bool listen(const double max_seconds)
   {
     int nbytes = recvfrom(rx_sock_, rxbuf, sizeof(rxbuf), 0, NULL, NULL);
     // printf("Received: %d bytes: ", nbytes); // check or uncheck for debugging
+    rx(rxbuf, nbytes);
+    printf("Info:\n");
+    printf("    dynamixel_angles: ");
+    for (int i = 0; i < 3; i++)
+    {
+      printf("%d, ", rx_state_.dynamixel_angles_[i]);
+    }
+    printf("%d\n", rx_state_.dynamixel_angles_[3]);
+    printf("    encoders: ");
+    for (int i = 0; i < 2; i++)
+    {
+      printf("%d, ", rx_state_.encoders_[i]);
+    }
+
     for (int i = 0; i < nbytes; ++i)
     {
-      // printf("%x ", rxbuf[i]);
-      printf("%c", (char) rxbuf[i]);
+      printf("%x ", rxbuf[i]);
+      // printf("%c", (char) rxbuf[i]);
     }
     printf("\n");
-    // rx(rxbuf, nbytes);
+    
   }
   return true;
 }
