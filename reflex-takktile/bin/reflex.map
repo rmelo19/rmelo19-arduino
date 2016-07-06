@@ -1743,39 +1743,39 @@ OUTPUT(bin/reflex elf32-littlearm)
  .debug_line    0x0000000000002119       0xcc bin/delay.o
  .debug_line    0x00000000000021e5      0x14b bin/error.o
 
-.debug_str      0x0000000000000000     0x269d
- .debug_str     0x0000000000000000      0x629 bin/main.o
-                                        0x691 (size before relaxing)
- .debug_str     0x0000000000000629      0x1f2 bin/startup.o
+.debug_str      0x0000000000000000     0x26dd
+ .debug_str     0x0000000000000000      0x61e bin/main.o
+                                        0x686 (size before relaxing)
+ .debug_str     0x000000000000061e      0x23d bin/startup.o
                                         0x432 (size before relaxing)
- .debug_str     0x000000000000081b       0x64 bin/leds.o
-                                        0x36d (size before relaxing)
- .debug_str     0x000000000000087f       0x48 bin/console.o
-                                        0x388 (size before relaxing)
- .debug_str     0x00000000000008c7      0x4b6 bin/stubs.o
-                                        0x71e (size before relaxing)
- .debug_str     0x0000000000000d7d      0xb57 bin/enet.o
-                                       0x11a7 (size before relaxing)
- .debug_str     0x00000000000018d4        0xa bin/systime.o
-                                        0x3ab (size before relaxing)
- .debug_str     0x00000000000018de      0x458 bin/dmxl.o
-                                       0x1060 (size before relaxing)
- .debug_str     0x0000000000001d36        0xe bin/fan.o
-                                        0x33f (size before relaxing)
- .debug_str     0x0000000000001d44      0x6af bin/tactile.o
-                                        0xd1a (size before relaxing)
- .debug_str     0x00000000000023f3       0x34 bin/pin.o
-                                        0x2c1 (size before relaxing)
- .debug_str     0x0000000000002427      0x186 bin/enc.o
-                                        0x7f7 (size before relaxing)
- .debug_str     0x00000000000025ad        0x8 bin/state.o
+ .debug_str     0x000000000000085b       0x64 bin/leds.o
+                                        0x362 (size before relaxing)
+ .debug_str     0x00000000000008bf       0x48 bin/console.o
+                                        0x37d (size before relaxing)
+ .debug_str     0x0000000000000907      0x4b6 bin/stubs.o
+                                        0x713 (size before relaxing)
+ .debug_str     0x0000000000000dbd      0xb57 bin/enet.o
+                                       0x119c (size before relaxing)
+ .debug_str     0x0000000000001914        0xa bin/systime.o
+                                        0x3a0 (size before relaxing)
+ .debug_str     0x000000000000191e      0x458 bin/dmxl.o
+                                       0x1055 (size before relaxing)
+ .debug_str     0x0000000000001d76        0xe bin/fan.o
+                                        0x334 (size before relaxing)
+ .debug_str     0x0000000000001d84      0x6af bin/tactile.o
+                                        0xd0f (size before relaxing)
+ .debug_str     0x0000000000002433       0x34 bin/pin.o
+                                        0x2b6 (size before relaxing)
+ .debug_str     0x0000000000002467      0x186 bin/enc.o
+                                        0x7ec (size before relaxing)
+ .debug_str     0x00000000000025ed        0x8 bin/state.o
                                         0x2ae (size before relaxing)
- .debug_str     0x00000000000025b5       0x65 bin/async_poll.o
+ .debug_str     0x00000000000025f5       0x65 bin/async_poll.o
                                         0x55e (size before relaxing)
- .debug_str     0x000000000000261a       0x11 bin/delay.o
-                                        0x1c0 (size before relaxing)
- .debug_str     0x000000000000262b       0x72 bin/error.o
-                                        0x461 (size before relaxing)
+ .debug_str     0x000000000000265a       0x11 bin/delay.o
+                                        0x1b5 (size before relaxing)
+ .debug_str     0x000000000000266b       0x72 bin/error.o
+                                        0x456 (size before relaxing)
 
 .debug_frame    0x0000000000000000     0x1cb0
  .debug_frame   0x0000000000000000       0x30 bin/main.o

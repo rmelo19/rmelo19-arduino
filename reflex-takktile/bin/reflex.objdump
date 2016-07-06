@@ -281,42 +281,17 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __enable_irq(void)
  8000580:	200105a0 	.word	0x200105a0
 
 08000584 <unmapped_vector>:
-  while (1) { } // hopefully we never get here...
-}
-
-void unmapped_vector()
-{
-  while (1) { } // spin to allow jtag trap
  8000584:	e7fe      	b.n	8000584 <unmapped_vector>
  8000586:	bf00      	nop
 
 08000588 <reset_vector>:
-extern int main();
-
-void startup_clock_init_fail() { while (1) { } }
-
-void reset_vector()
-{
  8000588:	b510      	push	{r4, lr}
  800058a:	b082      	sub	sp, #8
-  This function disables IRQ interrupts by setting the I-bit in the CPSR.
-  Can only be executed in Privileged modes.
- */
-__attribute__( ( always_inline ) ) __STATIC_INLINE void __disable_irq(void)
-{
-  __ASM volatile ("cpsid i" : : : "memory");
  800058c:	b672      	cpsid	i
-  //WDT->WDT_MR = WDT_MR_WDDIS; // disable watchdog for now
-  // set up data segment
-  __disable_irq();
-  pSrc = &_srelocate_flash;
-  pDest = &_srelocate;
-  if (pSrc != pDest)
  800058e:	4a46      	ldr	r2, [pc, #280]	; (80006a8 <reset_vector+0x120>)
  8000590:	4946      	ldr	r1, [pc, #280]	; (80006ac <reset_vector+0x124>)
  8000592:	428a      	cmp	r2, r1
  8000594:	d00e      	beq.n	80005b4 <reset_vector+0x2c>
-    for (; pDest < &_erelocate; )
  8000596:	4b46      	ldr	r3, [pc, #280]	; (80006b0 <reset_vector+0x128>)
  8000598:	4299      	cmp	r1, r3
  800059a:	d20b      	bcs.n	80005b4 <reset_vector+0x2c>
@@ -325,20 +300,10 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __disable_irq(void)
  80005a0:	f023 0303 	bic.w	r3, r3, #3
  80005a4:	3304      	adds	r3, #4
  80005a6:	4413      	add	r3, r2
-      *pDest++ = *pSrc++;
  80005a8:	f852 0b04 	ldr.w	r0, [r2], #4
  80005ac:	f841 0b04 	str.w	r0, [r1], #4
-  // set up data segment
-  __disable_irq();
-  pSrc = &_srelocate_flash;
-  pDest = &_srelocate;
-  if (pSrc != pDest)
-    for (; pDest < &_erelocate; )
  80005b0:	429a      	cmp	r2, r3
  80005b2:	d1f9      	bne.n	80005a8 <reset_vector+0x20>
-      *pDest++ = *pSrc++;
-  // set up bss segment
-  for (pDest = &_sbss; pDest < &_ebss; )
  80005b4:	4b3f      	ldr	r3, [pc, #252]	; (80006b4 <reset_vector+0x12c>)
  80005b6:	4a40      	ldr	r2, [pc, #256]	; (80006b8 <reset_vector+0x130>)
  80005b8:	4293      	cmp	r3, r2
@@ -348,210 +313,94 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __disable_irq(void)
  80005c0:	f022 0203 	bic.w	r2, r2, #3
  80005c4:	3204      	adds	r2, #4
  80005c6:	441a      	add	r2, r3
-    *pDest++ = 0;
  80005c8:	2100      	movs	r1, #0
  80005ca:	f843 1b04 	str.w	r1, [r3], #4
-  pDest = &_srelocate;
-  if (pSrc != pDest)
-    for (; pDest < &_erelocate; )
-      *pDest++ = *pSrc++;
-  // set up bss segment
-  for (pDest = &_sbss; pDest < &_ebss; )
  80005ce:	4293      	cmp	r3, r2
  80005d0:	d1fb      	bne.n	80005ca <reset_vector+0x42>
-    *pDest++ = 0;
-  //__libc_init_array() ;
-  SCB->CPACR |= ((3UL << (10*2)) | (3UL << (11*2))); // activate the FPU
  80005d2:	493a      	ldr	r1, [pc, #232]	; (80006bc <reset_vector+0x134>)
-  RCC->CR |= 0x1; // ensure the HSI (internal) oscillator is on
  80005d4:	4b3a      	ldr	r3, [pc, #232]	; (80006c0 <reset_vector+0x138>)
-      *pDest++ = *pSrc++;
-  // set up bss segment
-  for (pDest = &_sbss; pDest < &_ebss; )
-    *pDest++ = 0;
-  //__libc_init_array() ;
-  SCB->CPACR |= ((3UL << (10*2)) | (3UL << (11*2))); // activate the FPU
  80005d6:	f8d1 2088 	ldr.w	r2, [r1, #136]	; 0x88
-  RCC->CR |= 0x1; // ensure the HSI (internal) oscillator is on
-  RCC->CFGR = 0; // ensure the HSI oscillator is the clock source
-  RCC->CR &= 0xfef6ffff; // turn off the main PLL and HSE oscillator
-  RCC->PLLCFGR = 0x24003010; // ensure PLLCFGR is at reset state
  80005da:	483a      	ldr	r0, [pc, #232]	; (80006c4 <reset_vector+0x13c>)
-      *pDest++ = *pSrc++;
-  // set up bss segment
-  for (pDest = &_sbss; pDest < &_ebss; )
-    *pDest++ = 0;
-  //__libc_init_array() ;
-  SCB->CPACR |= ((3UL << (10*2)) | (3UL << (11*2))); // activate the FPU
  80005dc:	f442 0270 	orr.w	r2, r2, #15728640	; 0xf00000
  80005e0:	f8c1 2088 	str.w	r2, [r1, #136]	; 0x88
-  RCC->CR |= 0x1; // ensure the HSI (internal) oscillator is on
  80005e4:	681a      	ldr	r2, [r3, #0]
-  RCC->CFGR = 0; // ensure the HSI oscillator is the clock source
  80005e6:	2100      	movs	r1, #0
-  // set up bss segment
-  for (pDest = &_sbss; pDest < &_ebss; )
-    *pDest++ = 0;
-  //__libc_init_array() ;
-  SCB->CPACR |= ((3UL << (10*2)) | (3UL << (11*2))); // activate the FPU
-  RCC->CR |= 0x1; // ensure the HSI (internal) oscillator is on
  80005e8:	f042 0201 	orr.w	r2, r2, #1
  80005ec:	601a      	str	r2, [r3, #0]
-  RCC->CFGR = 0; // ensure the HSI oscillator is the clock source
  80005ee:	6099      	str	r1, [r3, #8]
-  RCC->CR &= 0xfef6ffff; // turn off the main PLL and HSE oscillator
  80005f0:	681a      	ldr	r2, [r3, #0]
  80005f2:	f022 7284 	bic.w	r2, r2, #17301504	; 0x1080000
  80005f6:	f422 3280 	bic.w	r2, r2, #65536	; 0x10000
  80005fa:	601a      	str	r2, [r3, #0]
-  RCC->PLLCFGR = 0x24003010; // ensure PLLCFGR is at reset state
  80005fc:	6058      	str	r0, [r3, #4]
-  RCC->CR &= 0xfffbffff; // reset HSEBYP (i.e., HSE is *not* bypassed)
  80005fe:	681a      	ldr	r2, [r3, #0]
  8000600:	f422 2280 	bic.w	r2, r2, #262144	; 0x40000
  8000604:	601a      	str	r2, [r3, #0]
-  RCC->CIR = 0x0; // disable all RCC interrupts
  8000606:	60d9      	str	r1, [r3, #12]
-  RCC->CR |= RCC_CR_HSEON; // enable HSE oscillator (off-chip crystal)
  8000608:	681a      	ldr	r2, [r3, #0]
  800060a:	f442 3280 	orr.w	r2, r2, #65536	; 0x10000
  800060e:	601a      	str	r2, [r3, #0]
-  for (volatile uint32_t i = 0; 
  8000610:	9101      	str	r1, [sp, #4]
-       i < HSE_STARTUP_TIMEOUT && !(RCC->CR & RCC_CR_HSERDY); i++)
  8000612:	9a01      	ldr	r2, [sp, #4]
-  RCC->CR &= 0xfef6ffff; // turn off the main PLL and HSE oscillator
-  RCC->PLLCFGR = 0x24003010; // ensure PLLCFGR is at reset state
-  RCC->CR &= 0xfffbffff; // reset HSEBYP (i.e., HSE is *not* bypassed)
-  RCC->CIR = 0x0; // disable all RCC interrupts
-  RCC->CR |= RCC_CR_HSEON; // enable HSE oscillator (off-chip crystal)
-  for (volatile uint32_t i = 0; 
  8000614:	f5b2 4fa0 	cmp.w	r2, #20480	; 0x5000
  8000618:	d307      	bcc.n	800062a <reset_vector+0xa2>
  800061a:	e009      	b.n	8000630 <reset_vector+0xa8>
-       i < HSE_STARTUP_TIMEOUT && !(RCC->CR & RCC_CR_HSERDY); i++)
  800061c:	9a01      	ldr	r2, [sp, #4]
  800061e:	3201      	adds	r2, #1
  8000620:	9201      	str	r2, [sp, #4]
  8000622:	9a01      	ldr	r2, [sp, #4]
-  RCC->CR &= 0xfef6ffff; // turn off the main PLL and HSE oscillator
-  RCC->PLLCFGR = 0x24003010; // ensure PLLCFGR is at reset state
-  RCC->CR &= 0xfffbffff; // reset HSEBYP (i.e., HSE is *not* bypassed)
-  RCC->CIR = 0x0; // disable all RCC interrupts
-  RCC->CR |= RCC_CR_HSEON; // enable HSE oscillator (off-chip crystal)
-  for (volatile uint32_t i = 0; 
  8000624:	f5b2 4fa0 	cmp.w	r2, #20480	; 0x5000
  8000628:	d202      	bcs.n	8000630 <reset_vector+0xa8>
-       i < HSE_STARTUP_TIMEOUT && !(RCC->CR & RCC_CR_HSERDY); i++)
  800062a:	681a      	ldr	r2, [r3, #0]
  800062c:	0390      	lsls	r0, r2, #14
  800062e:	d5f5      	bpl.n	800061c <reset_vector+0x94>
-  { } // wait for either timeout or HSE to spin up
-  FLASH->ACR = 0; // ensure the caches are turned off, so we can reset them
  8000630:	4a25      	ldr	r2, [pc, #148]	; (80006c8 <reset_vector+0x140>)
-  FLASH->ACR = FLASH_ACR_DCRST | FLASH_ACR_ICRST; // flush the cache
-  FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | 
-               FLASH_ACR_DCEN | FLASH_ACR_LATENCY_5WS; // re-enable the caches
-  if (!(RCC->CR & RCC_CR_HSERDY))
  8000632:	4b23      	ldr	r3, [pc, #140]	; (80006c0 <reset_vector+0x138>)
-  RCC->CIR = 0x0; // disable all RCC interrupts
-  RCC->CR |= RCC_CR_HSEON; // enable HSE oscillator (off-chip crystal)
-  for (volatile uint32_t i = 0; 
-       i < HSE_STARTUP_TIMEOUT && !(RCC->CR & RCC_CR_HSERDY); i++)
-  { } // wait for either timeout or HSE to spin up
-  FLASH->ACR = 0; // ensure the caches are turned off, so we can reset them
  8000634:	2400      	movs	r4, #0
-  FLASH->ACR = FLASH_ACR_DCRST | FLASH_ACR_ICRST; // flush the cache
  8000636:	f44f 50c0 	mov.w	r0, #6144	; 0x1800
-  FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | 
  800063a:	f240 7105 	movw	r1, #1797	; 0x705
-  RCC->CIR = 0x0; // disable all RCC interrupts
-  RCC->CR |= RCC_CR_HSEON; // enable HSE oscillator (off-chip crystal)
-  for (volatile uint32_t i = 0; 
-       i < HSE_STARTUP_TIMEOUT && !(RCC->CR & RCC_CR_HSERDY); i++)
-  { } // wait for either timeout or HSE to spin up
-  FLASH->ACR = 0; // ensure the caches are turned off, so we can reset them
  800063e:	6014      	str	r4, [r2, #0]
-  FLASH->ACR = FLASH_ACR_DCRST | FLASH_ACR_ICRST; // flush the cache
  8000640:	6010      	str	r0, [r2, #0]
-  FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | 
  8000642:	6011      	str	r1, [r2, #0]
-               FLASH_ACR_DCEN | FLASH_ACR_LATENCY_5WS; // re-enable the caches
-  if (!(RCC->CR & RCC_CR_HSERDY))
  8000644:	681a      	ldr	r2, [r3, #0]
  8000646:	0394      	lsls	r4, r2, #14
  8000648:	d400      	bmi.n	800064c <reset_vector+0xc4>
  800064a:	e7fe      	b.n	800064a <reset_vector+0xc2>
-    startup_clock_init_fail(); // go there and spin forever. BUH BYE
-  RCC->APB1ENR |= RCC_APB1ENR_PWREN; // clock up the power controller
  800064c:	6c1a      	ldr	r2, [r3, #64]	; 0x40
-  PWR->CR |= PWR_CR_VOS; // ensure the voltage regulator is at max beef
  800064e:	491f      	ldr	r1, [pc, #124]	; (80006cc <reset_vector+0x144>)
-  // PLL_VCO = 25 mhz / PLL_M * PLL_N = 336 MHz
-  #define PLL_P   2
-  // SYSCLK = PLL_VCO / PLL_P = 168 MHz
-  #define PLL_Q   7
-  // USB clock = PLL_VCO / PLL_Q = 48 MHz
-  RCC->PLLCFGR = PLL_M | (PLL_N << 6) | (((PLL_P >> 1)-1) << 16) |
  8000650:	481f      	ldr	r0, [pc, #124]	; (80006d0 <reset_vector+0x148>)
-  FLASH->ACR = FLASH_ACR_DCRST | FLASH_ACR_ICRST; // flush the cache
-  FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | 
-               FLASH_ACR_DCEN | FLASH_ACR_LATENCY_5WS; // re-enable the caches
-  if (!(RCC->CR & RCC_CR_HSERDY))
-    startup_clock_init_fail(); // go there and spin forever. BUH BYE
-  RCC->APB1ENR |= RCC_APB1ENR_PWREN; // clock up the power controller
  8000652:	f042 5280 	orr.w	r2, r2, #268435456	; 0x10000000
  8000656:	641a      	str	r2, [r3, #64]	; 0x40
-  PWR->CR |= PWR_CR_VOS; // ensure the voltage regulator is at max beef
  8000658:	680a      	ldr	r2, [r1, #0]
  800065a:	f442 4240 	orr.w	r2, r2, #49152	; 0xc000
  800065e:	600a      	str	r2, [r1, #0]
-                         // this will let us run at 168 MHz without overdrive
-  RCC->CFGR |= RCC_CFGR_HPRE_DIV1; // set HCLK (AHB clock) to sysclock
  8000660:	689a      	ldr	r2, [r3, #8]
  8000662:	609a      	str	r2, [r3, #8]
-  RCC->CFGR |= RCC_CFGR_PPRE2_DIV2; // set APB high-speed clock to sysclock/2
  8000664:	689a      	ldr	r2, [r3, #8]
  8000666:	f442 4200 	orr.w	r2, r2, #32768	; 0x8000
  800066a:	609a      	str	r2, [r3, #8]
-  RCC->CFGR |= RCC_CFGR_PPRE1_DIV4; // set APB  low-speed clock to sysclock/4
  800066c:	689a      	ldr	r2, [r3, #8]
  800066e:	f442 52a0 	orr.w	r2, r2, #5120	; 0x1400
  8000672:	609a      	str	r2, [r3, #8]
-  // PLL_VCO = 25 mhz / PLL_M * PLL_N = 336 MHz
-  #define PLL_P   2
-  // SYSCLK = PLL_VCO / PLL_P = 168 MHz
-  #define PLL_Q   7
-  // USB clock = PLL_VCO / PLL_Q = 48 MHz
-  RCC->PLLCFGR = PLL_M | (PLL_N << 6) | (((PLL_P >> 1)-1) << 16) |
  8000674:	6058      	str	r0, [r3, #4]
-                 (RCC_PLLCFGR_PLLSRC_HSE) | (PLL_Q << 24);
-  RCC->CR |= RCC_CR_PLLON; // start spinning up the PLL
  8000676:	681a      	ldr	r2, [r3, #0]
  8000678:	f042 7280 	orr.w	r2, r2, #16777216	; 0x1000000
  800067c:	601a      	str	r2, [r3, #0]
-  while (!(RCC->CR & RCC_CR_PLLRDY)) { } // wait until it's spun up
  800067e:	6819      	ldr	r1, [r3, #0]
  8000680:	4a0f      	ldr	r2, [pc, #60]	; (80006c0 <reset_vector+0x138>)
  8000682:	0189      	lsls	r1, r1, #6
  8000684:	d5fb      	bpl.n	800067e <reset_vector+0xf6>
-  RCC->CFGR &= ~((uint32_t)RCC_CFGR_SW); // select internal oscillator
  8000686:	6893      	ldr	r3, [r2, #8]
  8000688:	f023 0303 	bic.w	r3, r3, #3
  800068c:	6093      	str	r3, [r2, #8]
-  RCC->CFGR |= RCC_CFGR_SW_PLL; // select PLL as clock source
  800068e:	6893      	ldr	r3, [r2, #8]
  8000690:	f043 0302 	orr.w	r3, r3, #2
  8000694:	6093      	str	r3, [r2, #8]
-  while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL) { } // wait for it...
  8000696:	6893      	ldr	r3, [r2, #8]
  8000698:	f003 030c 	and.w	r3, r3, #12
  800069c:	2b08      	cmp	r3, #8
  800069e:	d1fa      	bne.n	8000696 <reset_vector+0x10e>
-  // hooray we're done! we're now running at 168 MHz.
-  main(); // jump to application main()
  80006a0:	f7ff ff16 	bl	80004d0 <main>
-  while (1) { } // hopefully we never get here...
  80006a4:	e7fe      	b.n	80006a4 <reset_vector+0x11c>
  80006a6:	bf00      	nop
  80006a8:	0800aa14 	.word	0x0800aa14
@@ -567,12 +416,6 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __disable_irq(void)
  80006d0:	07405419 	.word	0x07405419
 
 080006d4 <startup_clock_init_fail>:
-#include "./stm32/stm32f4xx.h"
-
-extern uint32_t _srelocate_flash, _srelocate, _erelocate, _ebss, _sbss;
-extern int main();
-
-void startup_clock_init_fail() { while (1) { } }
  80006d4:	e7fe      	b.n	80006d4 <startup_clock_init_fail>
  80006d6:	bf00      	nop
 
@@ -12066,242 +11909,94 @@ int isBusyI2C3()
  80033b4:	40005c00 	.word	0x40005c00
 
 080033b8 <state_init>:
-
-volatile state_t g_state;
-
-void state_init()
-{
-  g_state.header[0] = 0x01; // version number of this state format
  80033b8:	4915      	ldr	r1, [pc, #84]	; (8003410 <state_init+0x58>)
-  g_state.header[1] = 0x00; // pad 3 bytes so we get 32 bit alignment next
  80033ba:	2200      	movs	r2, #0
-
-volatile state_t g_state;
-
-void state_init()
-{
-  g_state.header[0] = 0x01; // version number of this state format
  80033bc:	2301      	movs	r3, #1
-#include "state.h"
-
-volatile state_t g_state;
-
-void state_init()
-{
  80033be:	b430      	push	{r4, r5}
-  g_state.header[0] = 0x01; // version number of this state format
  80033c0:	700b      	strb	r3, [r1, #0]
-  g_state.header[1] = 0x00; // pad 3 bytes so we get 32 bit alignment next
  80033c2:	704a      	strb	r2, [r1, #1]
-  g_state.header[2] = 0x00; // ditto
  80033c4:	708a      	strb	r2, [r1, #2]
-  g_state.header[3] = 0x00; // ditto
  80033c6:	70ca      	strb	r2, [r1, #3]
-  g_state.systime = 0;
  80033c8:	6848      	ldr	r0, [r1, #4]
  80033ca:	604a      	str	r2, [r1, #4]
-  for (uint_fast8_t i = 0; i < NUM_SENSORS; i++)
  80033cc:	4613      	mov	r3, r2
-    g_state.tactile_pressures[i] = g_state.tactile_temperatures[i] = 0;
  80033ce:	4614      	mov	r4, r2
  80033d0:	f103 0228 	add.w	r2, r3, #40	; 0x28
  80033d4:	eb01 0242 	add.w	r2, r1, r2, lsl #1
  80033d8:	1d18      	adds	r0, r3, #4
-  g_state.header[0] = 0x01; // version number of this state format
-  g_state.header[1] = 0x00; // pad 3 bytes so we get 32 bit alignment next
-  g_state.header[2] = 0x00; // ditto
-  g_state.header[3] = 0x00; // ditto
-  g_state.systime = 0;
-  for (uint_fast8_t i = 0; i < NUM_SENSORS; i++)
  80033da:	3301      	adds	r3, #1
-    g_state.tactile_pressures[i] = g_state.tactile_temperatures[i] = 0;
  80033dc:	8895      	ldrh	r5, [r2, #4]
  80033de:	8094      	strh	r4, [r2, #4]
-  g_state.header[0] = 0x01; // version number of this state format
-  g_state.header[1] = 0x00; // pad 3 bytes so we get 32 bit alignment next
-  g_state.header[2] = 0x00; // ditto
-  g_state.header[3] = 0x00; // ditto
-  g_state.systime = 0;
-  for (uint_fast8_t i = 0; i < NUM_SENSORS; i++)
  80033e0:	2b26      	cmp	r3, #38	; 0x26
-    g_state.tactile_pressures[i] = g_state.tactile_temperatures[i] = 0;
  80033e2:	f831 2010 	ldrh.w	r2, [r1, r0, lsl #1]
  80033e6:	f821 4010 	strh.w	r4, [r1, r0, lsl #1]
  80033ea:	4a09      	ldr	r2, [pc, #36]	; (8003410 <state_init+0x58>)
  80033ec:	f04f 0000 	mov.w	r0, #0
-  g_state.header[0] = 0x01; // version number of this state format
-  g_state.header[1] = 0x00; // pad 3 bytes so we get 32 bit alignment next
-  g_state.header[2] = 0x00; // ditto
-  g_state.header[3] = 0x00; // ditto
-  g_state.systime = 0;
-  for (uint_fast8_t i = 0; i < NUM_SENSORS; i++)
  80033f0:	d1ee      	bne.n	80033d0 <state_init+0x18>
-    g_state.tactile_pressures[i] = g_state.tactile_temperatures[i] = 0;
-  for (uint_fast8_t i = 0; i < NUM_ENC; i++)
-    g_state.encoders[i] = 0;
  80033f2:	f8b2 30a0 	ldrh.w	r3, [r2, #160]	; 0xa0
  80033f6:	f8a2 00a0 	strh.w	r0, [r2, #160]	; 0xa0
  80033fa:	f8b2 30a2 	ldrh.w	r3, [r2, #162]	; 0xa2
  80033fe:	f8a2 00a2 	strh.w	r0, [r2, #162]	; 0xa2
  8003402:	f8b2 30a4 	ldrh.w	r3, [r2, #164]	; 0xa4
  8003406:	f8a2 00a4 	strh.w	r0, [r2, #164]	; 0xa4
-}
  800340a:	bc30      	pop	{r4, r5}
  800340c:	4770      	bx	lr
  800340e:	bf00      	nop
  8003410:	200105a0 	.word	0x200105a0
 
 08003414 <async_poll_init>:
-  { dmxl_poll_nonblocking_tick   , 3, (int *)(&dmxl_poll_states[3])    },
-  { enc_poll_nonblocking_tick    , 0, (int *)(&enc_poll_state)         }
-};
-
-void async_poll_init()
-{
  8003414:	4770      	bx	lr
  8003416:	bf00      	nop
 
 08003418 <async_poll_tick>:
-}
-
-async_poll_tick_result_t async_poll_tick()
-{
  8003418:	b570      	push	{r4, r5, r6, lr}
-  if (async_poll_complete)
  800341a:	4e0d      	ldr	r6, [pc, #52]	; (8003450 <async_poll_tick+0x38>)
  800341c:	6833      	ldr	r3, [r6, #0]
  800341e:	b10b      	cbz	r3, 8003424 <async_poll_tick+0xc>
-    return APT_COMPLETE;
  8003420:	2002      	movs	r0, #2
-  {
-    async_poll_complete = 1;
-    return APT_JUST_FINISHED;
-  }
-  return APT_BUSY;
-}
  8003422:	bd70      	pop	{r4, r5, r6, pc}
  8003424:	4c0b      	ldr	r4, [pc, #44]	; (8003454 <async_poll_tick+0x3c>)
-{
-}
-
-async_poll_tick_result_t async_poll_tick()
-{
-  if (async_poll_complete)
  8003426:	2001      	movs	r0, #1
  8003428:	f104 056c 	add.w	r5, r4, #108	; 0x6c
-    return APT_COMPLETE;
-  bool all_done = true;
-  for (uint_fast8_t i = 0; i < ASYNC_POLL_NUM_PORTS; i++)
-  {
-    if (*(poll_targets[i].poll_state) == (int)ASYNC_POLL_DONE)
  800342c:	6823      	ldr	r3, [r4, #0]
  800342e:	681b      	ldr	r3, [r3, #0]
  8003430:	3301      	adds	r3, #1
  8003432:	d005      	beq.n	8003440 <async_poll_tick+0x28>
-      continue;
-    all_done = false;
-    poll_targets[i].fptr(poll_targets[i].arg);
  8003434:	f814 0c04 	ldrb.w	r0, [r4, #-4]
  8003438:	f854 3c08 	ldr.w	r3, [r4, #-8]
  800343c:	4798      	blx	r3
-  bool all_done = true;
-  for (uint_fast8_t i = 0; i < ASYNC_POLL_NUM_PORTS; i++)
-  {
-    if (*(poll_targets[i].poll_state) == (int)ASYNC_POLL_DONE)
-      continue;
-    all_done = false;
  800343e:	2000      	movs	r0, #0
  8003440:	340c      	adds	r4, #12
-async_poll_tick_result_t async_poll_tick()
-{
-  if (async_poll_complete)
-    return APT_COMPLETE;
-  bool all_done = true;
-  for (uint_fast8_t i = 0; i < ASYNC_POLL_NUM_PORTS; i++)
  8003442:	42ac      	cmp	r4, r5
  8003444:	d1f2      	bne.n	800342c <async_poll_tick+0x14>
-    if (*(poll_targets[i].poll_state) == (int)ASYNC_POLL_DONE)
-      continue;
-    all_done = false;
-    poll_targets[i].fptr(poll_targets[i].arg);
-  }
-  if (all_done)
  8003446:	2800      	cmp	r0, #0
  8003448:	d0eb      	beq.n	8003422 <async_poll_tick+0xa>
-  {
-    async_poll_complete = 1;
  800344a:	2001      	movs	r0, #1
  800344c:	6030      	str	r0, [r6, #0]
-    return APT_JUST_FINISHED;
  800344e:	bd70      	pop	{r4, r5, r6, pc}
  8003450:	20010470 	.word	0x20010470
  8003454:	0800a6d8 	.word	0x0800a6d8
 
 08003458 <async_poll_start>:
-  }
-  return APT_BUSY;
-}
-
-void async_poll_start()
-{
  8003458:	b570      	push	{r4, r5, r6, lr}
  800345a:	4c0c      	ldr	r4, [pc, #48]	; (800348c <async_poll_start+0x34>)
-  for (uint_fast8_t i = 0; i < ASYNC_POLL_NUM_PORTS; i++)
-  {
-    // force them all to the DONE state, in case somebody was stuck,
-    // so their state machines get the DONE -> IDLE transition on the next tick
-    *poll_targets[i].poll_state = ASYNC_POLL_DONE;
  800345c:	f04f 36ff 	mov.w	r6, #4294967295	; 0xffffffff
  8003460:	f104 056c 	add.w	r5, r4, #108	; 0x6c
  8003464:	6822      	ldr	r2, [r4, #0]
-    poll_targets[i].fptr(poll_targets[i].arg); // get it started
  8003466:	f854 3c08 	ldr.w	r3, [r4, #-8]
-{
-  for (uint_fast8_t i = 0; i < ASYNC_POLL_NUM_PORTS; i++)
-  {
-    // force them all to the DONE state, in case somebody was stuck,
-    // so their state machines get the DONE -> IDLE transition on the next tick
-    *poll_targets[i].poll_state = ASYNC_POLL_DONE;
  800346a:	6016      	str	r6, [r2, #0]
-    poll_targets[i].fptr(poll_targets[i].arg); // get it started
  800346c:	f814 0c04 	ldrb.w	r0, [r4, #-4]
  8003470:	340c      	adds	r4, #12
  8003472:	4798      	blx	r3
-  return APT_BUSY;
-}
-
-void async_poll_start()
-{
-  for (uint_fast8_t i = 0; i < ASYNC_POLL_NUM_PORTS; i++)
  8003474:	42ac      	cmp	r4, r5
  8003476:	d1f5      	bne.n	8003464 <async_poll_start+0xc>
-    // so their state machines get the DONE -> IDLE transition on the next tick
-    *poll_targets[i].poll_state = ASYNC_POLL_DONE;
-    poll_targets[i].fptr(poll_targets[i].arg); // get it started
-  }
-  async_poll_complete = 0;
-  async_poll_start_time_us = SYSTIME;
  8003478:	f04f 4280 	mov.w	r2, #1073741824	; 0x40000000
-    // force them all to the DONE state, in case somebody was stuck,
-    // so their state machines get the DONE -> IDLE transition on the next tick
-    *poll_targets[i].poll_state = ASYNC_POLL_DONE;
-    poll_targets[i].fptr(poll_targets[i].arg); // get it started
-  }
-  async_poll_complete = 0;
  800347c:	4904      	ldr	r1, [pc, #16]	; (8003490 <async_poll_start+0x38>)
-  async_poll_start_time_us = SYSTIME;
  800347e:	4b05      	ldr	r3, [pc, #20]	; (8003494 <async_poll_start+0x3c>)
  8003480:	6a52      	ldr	r2, [r2, #36]	; 0x24
  8003482:	601a      	str	r2, [r3, #0]
-    // force them all to the DONE state, in case somebody was stuck,
-    // so their state machines get the DONE -> IDLE transition on the next tick
-    *poll_targets[i].poll_state = ASYNC_POLL_DONE;
-    poll_targets[i].fptr(poll_targets[i].arg); // get it started
-  }
-  async_poll_complete = 0;
  8003484:	2000      	movs	r0, #0
  8003486:	6008      	str	r0, [r1, #0]
-  async_poll_start_time_us = SYSTIME;
  8003488:	bd70      	pop	{r4, r5, r6, pc}
  800348a:	bf00      	nop
  800348c:	0800a6d8 	.word	0x0800a6d8

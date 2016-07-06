@@ -217,12 +217,17 @@ void rx(const uint8_t *msg, const uint16_t msg_len)
 int setupNetwork(const std::string &interface)
 {
   const char *mcast_addr_str = "224.0.0.124"; // parameterize someday !
-  tx_sock_ = socket(AF_INET, SOCK_DGRAM, 0);
-  rx_sock_ = socket(AF_INET, SOCK_DGRAM, 0);
+  tx_sock_ = socket(AF_INET6, SOCK_DGRAM, 0);
+  rx_sock_ = socket(AF_INET6, SOCK_DGRAM, 0);
+
   if(tx_sock_ < 0 || rx_sock_ < 0)
   {
     printf("Couldn't create socket.\n");
     return -1;
+  }
+  else
+  {
+    printf("Created socket...\n");
   }
   memset(&mcast_addr_, 0, sizeof(mcast_addr_));
   mcast_addr_.sin_family = AF_INET;
@@ -231,21 +236,28 @@ int setupNetwork(const std::string &interface)
   ifaddrs *ifaddr;
   if (getifaddrs(&ifaddr) == -1)
   {
-    printf("couldn't get ipv4 address of interface %s\n", interface.c_str());
+    printf("Couldn't get ipv6 address of interface %s\n", interface.c_str());
     return -1;
+  }
+  else
+  {
+    printf("Found ipv6 address of interface %s.\n", interface.c_str());
   }
   std::string tx_iface_addr;
   bool found_interface = false;
   for (ifaddrs *ifa = ifaddr; ifa; ifa = ifa->ifa_next)
   {
+    printf("Interface: name: %s address family: %d\n", ifa->ifa_name, ifa->ifa_addr->sa_family);
     if (!ifa->ifa_addr)
       continue;
     int family = ifa->ifa_addr->sa_family;
-    if (family != AF_INET)
+    if (family != AF_INET6)
       continue;
     char host[NI_MAXHOST];
-    if (getnameinfo(ifa->ifa_addr, sizeof(struct sockaddr_in), host, NI_MAXHOST, NULL, 0, NI_NUMERICHOST))
-      continue;
+    int rt = getnameinfo(ifa->ifa_addr, sizeof(struct sockaddr_in), host, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);
+    printf("%s\n", gai_strerror(rt));
+    // if (rt)
+    //   continue;
     printf("    found address %s on interface %s\n", host, ifa->ifa_name);
     if (std::string(ifa->ifa_name) == interface)
     {
@@ -268,7 +280,7 @@ int setupNetwork(const std::string &interface)
   int result = 0, loopback = 0;
   result = setsockopt(tx_sock_, IPPROTO_IP, IP_MULTICAST_IF, (char *)&local_addr, sizeof(local_addr));
 
-  err = errno;
+    err = errno;
   if(result < 0)
   {
       printf("couldn't set local interface for udp tx sock, fails with errno: %s\n", strerror(err));
