@@ -7,9 +7,37 @@ CFLAGS=$(DEFS) -O2 -g $(FLOAT_FLAGS) -mthumb -mcpu=cortex-m4 -ffunction-sections
 LDFLAGS=-g $(FLOAT_FLAGS) -mthumb -mcpu=cortex-m4
 TC=arm-none-eabi-
 CC=$(TC)gcc
+	
+# SRCS= \
+# startup.c \
+# stand_alone_i2c.c \
+# leds.c \
+# pin.c
+# stand_alone_i2c.c
+SRCS=main.c startup.c leds.c console.c stubs.c enet.c systime.c dmxl.c fan.c \
+     tactile.c pin.c enc.c state.c async_poll.c delay.c error.c 
 
-SRCS=startup.c main.c leds.c console.c stubs.c enet.c systime.c dmxl.c fan.c \
-     tactile.c pin.c enc.c state.c async_poll.c delay.c error.c
+
+DEPS=leds.h console.h enet.h systime.h dmxl.h fan.h tactile.h pin.h enc.h state.h async_poll.h delay.h error.h
+
+# systime.c\
+
+# main.c \
+
+# console.c \
+# stubs.c \
+# enet.c \
+
+# dmxl.c \
+# fan.c \
+# tactile.c \
+# pin.c \
+# enc.c \
+# state.c \
+# async_poll.c \
+# delay.c \
+# error.c
+
 OBJS=$(SRCS:%.c=$(BINDIR)/%.o)
 
 default: $(BINDIR) $(OUT).bin
@@ -20,11 +48,11 @@ $(BINDIR):
 $(BINDIR)/%.o: %.c
 	$(TC)gcc $(CFLAGS) -c $< -o $@
 
-$(OUT): $(OBJS)
+$(OUT): $(OBJS) 
 	$(TC)gcc $(OBJS) -lc -lgcc -lm  -T stm32/stm32f427.ld -Wl,--no-gc-sections $(LDFLAGS) -o $(OUT) -Wl,-Map=$(BINDIR)/$(NAME).map,--cref
 	$(TC)objdump -S -d $(OUT) > $(OUT).objdump
 
-$(OUT).bin: $(OUT)
+$(OUT).bin: $(OUT) 
 	$(TC)objcopy -O binary $(OUT) $(OUT).bin
 	$(TC)size $(OUT)
 

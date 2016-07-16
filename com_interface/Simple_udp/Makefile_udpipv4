@@ -1,0 +1,7 @@
+all: 
+	gcc Simple_udpserver_ipv4.c -o Simple_udpserver_ipv4.out
+	gcc Simple_udpclient_ipv4.c -o Simple_udpclient_ipv4.out
+
+clean:
+	rm Simple_udpserver_ipv4.out
+	rm Simple_udpclient_ipv4.out

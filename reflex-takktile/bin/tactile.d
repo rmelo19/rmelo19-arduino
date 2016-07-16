@@ -21,6 +21,6 @@ bin/tactile.o: tactile.c reflex.h tactile.h \
  /usr/arm-none-eabi/include/sys/types.h \
  /usr/arm-none-eabi/include/machine/types.h \
  /usr/arm-none-eabi/include/sys/stdio.h pin.h state.h enc.h error.h \
- systime.h /usr/arm-none-eabi/include/string.h \
+ systime.h stm32/stm32f4xx.h /usr/arm-none-eabi/include/string.h \
  /usr/arm-none-eabi/include/sys/string.h \
- /usr/lib/gcc/arm-none-eabi/4.9.3/include/stdbool.h leds.h
+ /usr/lib/gcc/arm-none-eabi/4.9.3/include/stdbool.h

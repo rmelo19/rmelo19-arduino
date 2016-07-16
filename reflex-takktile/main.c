@@ -55,51 +55,48 @@ int main()
     const async_poll_tick_result_t aptr = async_poll_tick();
     if (aptr == APT_JUST_FINISHED)
     {
-      #ifdef PRINT_TIMING
-        volatile uint32_t t1 __attribute__((unused))= SYSTIME - prev_start_time;
-        printf("%lu : %lu \r\n", SYSTIME, t1);
-      #endif
-      if (enet_get_link_status() == ENET_LINK_UP)
-      {
+#ifdef PRINT_TIMING
+      volatile uint32_t t1 __attribute__((unused))= SYSTIME - prev_start_time;
+      printf("%lu : %lu \r\n", SYSTIME, t1);
+#endif
+      if (enet_get_link_status() == ENET_LINK_UP) {
         err_unset(ERR_NO_ETHERNET);
         enet_send_state();
-      }
-      else
-      {
+      } else {
         err_set(ERR_NO_ETHERNET);
       }
 
       enet_process_rx_ring();
-// #if 0
+#if 0
 
-// #ifdef PRINT_TIMING
-//       volatile uint32_t t_before_enet = SYSTIME;
-// #endif
-//       uint_fast8_t num_rx = enet_process_rx_ring();
-// #ifdef PRINT_TIMING
-//       volatile uint32_t t_after_enet = SYSTIME;
-// #endif
-//       if (num_rx) // most inbound messages require dmxl tx/rx
-//       {
-//         // if we did something with a packet, bump our next TX time up
-//         // by one cycle period, so we have enough time to talk to the
-//         // dynamixels
-//         //poll_cycles_to_skip = 1; // skip the next polling cycle
-//         //printf("proc rx ring: %d\r\n", num_rx);
-// #ifdef PRINT_TIMING
-//         volatile uint32_t t_before_dmxl = SYSTIME;
-// #endif
-//         dmxl_process_rings();
-// #ifdef PRINT_TIMING
-//         volatile uint32_t t_after_dmxl = SYSTIME;
-//         printf("%8u %8u %8u %8u\r\n",
-//                (unsigned)t_before_enet,
-//                (unsigned)t_after_enet,
-//                (unsigned)t_before_dmxl,
-//                (unsigned)t_after_dmxl);
-// #endif
-//       }
-// #endif
+#ifdef PRINT_TIMING
+      volatile uint32_t t_before_enet = SYSTIME;
+#endif
+      uint_fast8_t num_rx = enet_process_rx_ring();
+#ifdef PRINT_TIMING
+      volatile uint32_t t_after_enet = SYSTIME;
+#endif
+      if (num_rx) // most inbound messages require dmxl tx/rx
+      {
+        // if we did something with a packet, bump our next TX time up
+        // by one cycle period, so we have enough time to talk to the
+        // dynamixels
+        //poll_cycles_to_skip = 1; // skip the next polling cycle
+        //printf("proc rx ring: %d\r\n", num_rx);
+#ifdef PRINT_TIMING
+        volatile uint32_t t_before_dmxl = SYSTIME;
+#endif
+        dmxl_process_rings();
+#ifdef PRINT_TIMING
+        volatile uint32_t t_after_dmxl = SYSTIME;
+        printf("%8u %8u %8u %8u\r\n",
+               (unsigned)t_before_enet,
+               (unsigned)t_after_enet,
+               (unsigned)t_before_dmxl,
+               (unsigned)t_after_dmxl);
+#endif
+      }
+#endif
     }
   }
   return 0;
