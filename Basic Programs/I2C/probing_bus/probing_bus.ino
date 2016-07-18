@@ -3,7 +3,7 @@ Finding slave devices on I2C bus
 *********************************************************/
 #include <Wire.h>
 
-#define BAUD_RATE 115200
+#define BAUD_RATE 230400
 
 void setup()
 {

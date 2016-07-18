@@ -23,4 +23,4 @@ bin/main.o: main.c leds.h \
  stm32/core_cm4.h stm32/core_cmInstr.h stm32/core_cmFunc.h \
  stm32/core_cm4_simd.h dmxl.h async_poll.h \
  /usr/lib/gcc/arm-none-eabi/4.9.3/include/stdbool.h fan.h tactile.h \
- reflex.h enc.h state.h
+ reflex.h spiFunc.h config.h leds.h enc.h i2cFunc.h pin.h state.h

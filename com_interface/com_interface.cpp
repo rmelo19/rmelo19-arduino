@@ -77,7 +77,7 @@ ReflexHandState rx_state_;
 int main()
 {
   std::string network_interface;
-  network_interface = "eth1";
+  network_interface = "eth2";
   printf("Starting network interface %s.\n", network_interface.c_str());
   setupNetwork(network_interface);
   uint8_t messages[202] = {1};

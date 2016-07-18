@@ -21,5 +21,6 @@ bin/dmxl.o: dmxl.c dmxl.h \
  /usr/arm-none-eabi/include/sys/lock.h \
  /usr/arm-none-eabi/include/sys/types.h \
  /usr/arm-none-eabi/include/machine/types.h \
- /usr/arm-none-eabi/include/sys/stdio.h state.h tactile.h reflex.h enc.h \
- systime.h delay.h
+ /usr/arm-none-eabi/include/sys/stdio.h state.h tactile.h reflex.h \
+ spiFunc.h config.h systime.h leds.h enc.h i2cFunc.h pin.h error.h leds.h \
+ delay.h

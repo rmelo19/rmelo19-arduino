@@ -12,7 +12,6 @@ static volatile uint8_t s_console_init_complete = 0;
 
 void console_init()
 {
-  s_console_init_complete = 1;
   RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
   RCC->APB1ENR |= RCC_APB1ENR_UART8EN;
   GPIOE->MODER   |= (0x2) << (PORTE_TX * 2);
@@ -31,10 +30,9 @@ void console_send_block(const uint8_t *buf, uint32_t len)
     console_init();
   for (uint32_t i = 0; i < len; i++)
   {
-    while (!(UART8->SR & USART_SR_TXE)) { } // wait for tx buffer to clear
+    while (!(UART8->SR & USART_SR_TXE)); // wait for tx buffer to clear
     UART8->DR = buf[i];
   }
-  while (!(UART8->SR & USART_SR_TC)) { } // wait for TX to finish
-  //for (volatile int i = 0; i < 100000; i++) { } // give usb uart some time...
+  while (!(UART8->SR & USART_SR_TC)); // wait for TX to finish
 }
 

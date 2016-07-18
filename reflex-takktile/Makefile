@@ -14,11 +14,11 @@ CC=$(TC)gcc
 # leds.c \
 # pin.c
 # stand_alone_i2c.c
-SRCS=main.c startup.c leds.c console.c stubs.c enet.c systime.c dmxl.c fan.c \
+SRCS=main.c startup.c i2cFunc.c spiFunc.c leds.c console.c stubs.c enet.c systime.c dmxl.c fan.c \
      tactile.c pin.c enc.c state.c async_poll.c delay.c error.c 
 
 
-DEPS=leds.h console.h enet.h systime.h dmxl.h fan.h tactile.h pin.h enc.h state.h async_poll.h delay.h error.h
+DEPS=i2cFunc.h spiFunc.h leds.h console.h enet.h systime.h dmxl.h fan.h tactile.h pin.h enc.h state.h async_poll.h delay.h error.h
 
 # systime.c\
 

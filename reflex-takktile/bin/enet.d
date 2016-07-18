@@ -24,4 +24,5 @@ bin/enet.o: enet.c enet.h \
  /usr/arm-none-eabi/include/string.h \
  /usr/arm-none-eabi/include/sys/string.h dmxl.h async_poll.h \
  /usr/lib/gcc/arm-none-eabi/4.9.3/include/stdbool.h error.h state.h \
- tactile.h reflex.h enc.h systime.h stm32/stm32f4xx.h delay.h
+ tactile.h reflex.h spiFunc.h stm32/stm32f4xx.h config.h systime.h leds.h \
+ enc.h i2cFunc.h pin.h leds.h delay.h

@@ -2,6 +2,7 @@
 #define TACTILE_H
 
 #include "reflex.h"
+#include "spiFunc.h"
 #include <stdint.h>
 #include "async_poll.h"
 
@@ -13,7 +14,7 @@ void tactile_bridge_poll_nonblocking(const uint8_t tactile_bridge);
 #define SENSORS_PER_FINGER  9
 #define NUM_PALM_SENSORS   11
 #define NUM_SENSORS (NUM_FINGERS * SENSORS_PER_FINGER + NUM_PALM_SENSORS)
-#define NUM_TACTILE_PORTS 4
+#define NUM_TACTILE_PORTS 4 //rmelo19
 #define NUM_INTERNAL_I2C 2
 #define NUM_BRIDGED_I2C 2
 

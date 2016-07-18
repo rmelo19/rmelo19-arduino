@@ -64,7 +64,7 @@
 #define I2C_READ 1
 
 tactile_async_poll_state_t tactile_poll_states[NUM_TACTILE_PORTS] =
-  { TPS_IDLE, TPS_IDLE, TPS_IDLE, TPS_IDLE };
+  { TPS_IDLE, TPS_IDLE, TPS_IDLE, TPS_IDLE}; // rmelo19
 
 typedef enum { I2C_FAIL, I2C_SUCCESS } tactile_i2c_result_t;
 
@@ -95,8 +95,7 @@ static const uint8_t g_tactile_palm_addrs[NUM_PALM_SENSORS] =
 { 0x60, 0x62, 0x64, 0x66, 0x68, 0x70, 0x72, 0x74, 0x76, 0x78, 0x7a };
 
 static const uint8_t g_tactile_sensors_per_port[NUM_TACTILE_PORTS] =
-{ SENSORS_PER_FINGER, SENSORS_PER_FINGER, SENSORS_PER_FINGER,
-  NUM_PALM_SENSORS };
+{ SENSORS_PER_FINGER, SENSORS_PER_FINGER, SENSORS_PER_FINGER, SENSORS_PER_FINGER};
 
 tactile_i2c_result_t tactile_i2c(const uint8_t tactile_port,
                                  const uint8_t address,
@@ -151,7 +150,7 @@ g_tactile_bridged_i2c_status[NUM_BRIDGED_I2C] =
 void tactile_i2c_async_start(const uint8_t port, const uint8_t address,
                              uint8_t *data, const uint8_t data_len)
 {
-  if (port >= NUM_TACTILE_PORTS)
+  if (port >= NUM_TACTILE_PORTS - 1)
     return; // bogus
 
   g_tactile_i2c_async_address[port]  = address;
@@ -174,8 +173,12 @@ void tactile_i2c_async_start(const uint8_t port, const uint8_t address,
       i2c = I2C1;
     else
       i2c = I2C3;
-    i2c->CR1 |=  I2C_CR1_START;
-    i2c->SR1 &= ~I2C_SR1_AF;
+    // if (port != 0)
+    // {
+      i2c->CR1 |=  I2C_CR1_START;
+      i2c->SR1 &= ~I2C_SR1_AF;
+    // }
+
     g_tactile_internal_i2c_status[port] = TATS_START;
   }
   else if (port == 2 || port == 3) // use a bridge
@@ -317,7 +320,7 @@ void tactile_internal_i2c_async_tick(const uint_fast8_t port)
       }
       break;
     case TATS_STOP_WAIT:
-      if (SYSTIME - g_tactile_i2c_async_start_us[port] > 10)
+      if (SYSTIME - g_tactile_i2c_async_start_us[port] > 10) // rmelo19
       {
         if (g_tactile_i2c_async_address_fail[port])
           *status = TATS_DONE_FAIL;
@@ -359,7 +362,7 @@ void tactile_bridged_i2c_async_tick(const uint_fast8_t tactile_port)
     case TBPS_REQUEST_CS_LOW:
       if (SYSTIME - g_tactile_i2c_async_start_us[tactile_port] > 4)
       {
-        spi->DR = g_tactile_i2c_async_address[tactile_port] & 0x1; // send CMD
+        spi->DR = g_tactile_i2c_async_address[tactile_port] & 0x1; // send CMD, read or write
         *status = TBPS_REQUEST_TX_CMD;
         g_tactile_i2c_async_start_us[tactile_port] = SYSTIME;
       }
@@ -367,7 +370,7 @@ void tactile_bridged_i2c_async_tick(const uint_fast8_t tactile_port)
     case TBPS_REQUEST_TX_CMD:
       if (SYSTIME - g_tactile_i2c_async_start_us[tactile_port] > 15)
       {
-        spi->DR = g_tactile_i2c_async_data_len[tactile_port];
+        spi->DR = g_tactile_i2c_async_data_len[tactile_port]; // send data len
         *status = TBPS_REQUEST_TX_LEN;
         g_tactile_i2c_async_start_us[tactile_port] = SYSTIME;
       }
@@ -452,7 +455,7 @@ void tactile_bridged_i2c_async_tick(const uint_fast8_t tactile_port)
         {
           g_tactile_i2c_async_data[tactile_port][
             g_tactile_i2c_async_data_txrx_idx[tactile_port]-1] = dr;
-        }
+        } 
         g_tactile_i2c_async_data_txrx_idx[tactile_port]++;
         if (g_tactile_i2c_async_data_txrx_idx[tactile_port] ==
             g_tactile_i2c_async_data_len[tactile_port] + 1)
@@ -489,75 +492,6 @@ void tactile_i2c_async_tick(const uint_fast8_t port)
 
 void tactile_init()
 {
-  printf("tactile_init()\r\n");
-  RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN |
-                  RCC_AHB1ENR_GPIOBEN |
-                  RCC_AHB1ENR_GPIOCEN |
-                  RCC_AHB1ENR_GPIODEN;
-  RCC->APB1ENR |= RCC_APB1ENR_I2C1EN |
-                  RCC_APB1ENR_I2C3EN |
-                  RCC_APB1ENR_SPI2EN;
-  RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
-
-  pin_set_alternate_function(GPIOB, PORTB_I2C1_SCL, 4);
-  pin_set_alternate_function(GPIOB, PORTB_I2C1_SDA, 4);
-  pin_set_output_type(GPIOB, PORTB_I2C1_SCL, PIN_OUTPUT_TYPE_OPEN_DRAIN);
-  pin_set_output_type(GPIOB, PORTB_I2C1_SDA, PIN_OUTPUT_TYPE_OPEN_DRAIN);
-
-  pin_set_alternate_function(GPIOA, PORTA_I2C3_SCL, 4);
-  pin_set_alternate_function(GPIOC, PORTC_I2C3_SDA, 4);
-  pin_set_output_type(GPIOA, PORTA_I2C3_SCL, PIN_OUTPUT_TYPE_OPEN_DRAIN);
-  pin_set_output_type(GPIOC, PORTC_I2C3_SDA, PIN_OUTPUT_TYPE_OPEN_DRAIN);
-
-  //I2C1->CCR |= I2C_CCR_FS | // set fast mode
-  //             35; // 42 MHz / (3 * 400 kHz) == 35
-  //I2C1->TRISE = 42 * 300 / 1000 + 1; // not sure here.
-  I2C1->CR2   |= APB_MHZ;
-  I2C1->CCR   |= I2C_CCR;
-  I2C1->TRISE &= ~0x3f;
-  I2C1->TRISE |= I2C_TRISE;
-  I2C1->CR1   |= I2C_CR1_PE;
-
-  I2C3->CR2   |= APB_MHZ;
-  I2C3->CCR   |= I2C_CCR;
-  I2C3->TRISE &= ~0x3f;
-  I2C3->TRISE |= I2C_TRISE;
-  I2C3->CR1   |= I2C_CR1_PE;
-
-  // now, set up the spi-to-i2c bridges
-  pin_set_output(GPIOC, PORTC_I2C_BRIDGE_RESET);
-  pin_set_output(GPIOA, PORTA_BRIDGE0_CS);
-  pin_set_output(GPIOB, PORTB_BRIDGE1_CS);
-  pin_set_output_level(GPIOA, PORTA_BRIDGE0_CS, 1);
-  pin_set_output_level(GPIOA, PORTB_BRIDGE1_CS, 1);
-
-  pin_set_alternate_function(GPIOA, PORTA_BRIDGE0_MISO, 5);
-  pin_set_alternate_function(GPIOB, PORTB_BRIDGE0_MOSI, 5);
-  pin_set_alternate_function(GPIOA, PORTA_BRIDGE0_SCLK, 5);
-  pin_set_alternate_function(GPIOC, PORTC_BRIDGE1_MISO, 5);
-  pin_set_alternate_function(GPIOC, PORTC_BRIDGE1_MOSI, 5);
-  pin_set_alternate_function(GPIOD, PORTD_BRIDGE1_SCLK, 5);
-
-  // spi1 is running from a 84 MHz pclk. set it up with
-  // sclk = pclk/64 to stay within datasheet limits.
-  SPI1->CR1 = SPI_CR1_BR_2 |
-              SPI_CR1_BR_0 |
-              SPI_CR1_MSTR |
-              SPI_CR1_CPOL |
-              SPI_CR1_CPHA |
-              SPI_CR1_SSM  |
-              SPI_CR1_SSI  |
-              SPI_CR1_SPE;
-
-  // bit rate = 42 mhz / 32 = 1.313 MHz
-  SPI2->CR1 = SPI_CR1_BR_2 |
-              SPI_CR1_MSTR |
-              SPI_CR1_CPOL |
-              SPI_CR1_CPHA |
-              SPI_CR1_SSM  |
-              SPI_CR1_SSI  |
-              SPI_CR1_SPE;
-
   tactile_bridge_reset();
   for (int i = 0; i < 2; i++)
     for (int j = 0; j < 6; j++)
@@ -873,15 +807,12 @@ tactile_bridge_i2c_read
 
 void tactile_poll_nonblocking_tick(const uint8_t tactile_port)
 {
-  if (tactile_port == 0)
-  {
-    return;
-  }
   static uint_fast8_t errCount[NUM_TACTILE_PORTS] = {0};
   const uint_fast8_t tp = tactile_port; // save typing
   if (tp >= NUM_TACTILE_PORTS)
     return; // let's not corrupt memory.
-  tactile_async_poll_state_t *tps = &tactile_poll_states[tp]; // save typing
+  tactile_async_poll_state_t *tps = &tactile_poll_states[tp]; // save typing  
+
   static uint_fast8_t active_sensor_idx[NUM_TACTILE_PORTS] = {0};
   int *i2c_status = NULL;
   if (tactile_port == 0 || tactile_port == 1)
@@ -906,12 +837,50 @@ void tactile_poll_nonblocking_tick(const uint8_t tactile_port)
   const uint8_t sensor_count = (tp < NUM_FINGERS ?
                                 SENSORS_PER_FINGER :
                                 NUM_PALM_SENSORS);
+ #define SLEEP_TIME 0
   static uint32_t state_start_time_us[NUM_TACTILE_PORTS] = {0};
   switch (*tps)
   {
     case TPS_DONE: // initial state. kick things off.
-      *tps = TPS_BCAST_ENABLE;
-      tactile_i2c_async_start(tp, BCAST_ENABLE_ADDR, NULL, 0);
+      if (tactile_port == 2)
+      {
+          uint_fast8_t index;
+
+          uint8_t data[2] = {0x12, 0x01};
+          writeBytesSPI(SPI1, BCAST_ENABLE_ADDR, NULL, 0, 1);  // enable all sensors    
+          // udelay(SLEEP_TIME);
+          writeBytesSPI(SPI1, BAROM_ADDR, data, 2, 1);         // send Start Conversion Sequence
+          // udelay(SLEEP_TIME); // test
+          // writeBytesSPI(SPI1, BCAST_DISABLE_ADDR, NULL, 0, 1); // disable all sensors
+          readBytesSPI(SPI1, BCAST_DISABLE_ADDR>>1, 0, NULL);
+          udelay(3000);                                     // wait 3ms
+          for (int i = 7; i < 8; i++)
+          {
+            volatile uint8_t values[4] = {0, 0, 0, 0};
+            writeBytesSPI(SPI1, tactile_sensor_addr(tp, i), NULL, 0, 1); // enable sensor i
+            // udelay(SLEEP_TIME); // test
+            uint8_t msg[1] = {0};
+            writeBytesSPI(SPI1, BAROM_ADDR, msg, 1, 1);       // choose register 0x00
+            // udelay(SLEEP_TIME); // test
+            readBytesSPI(SPI1, BAROM_ADDR >> 1, 1, values);      // read 4 bytes
+            // udelay(SLEEP_TIME); // test
+            index = tp * SENSORS_PER_FINGER + i;
+            g_state.tactile_pressures   [index] = 510 - (values[0]<200 ? ((uint16_t)values[0] + 255) : ((uint16_t)values[0]));
+            g_state.tactile_temperatures[index] = ((uint16_t)values[2] << 2) | (values[3] >> 6);;
+            // writeBytesSPI(SPI1, tactile_sensor_addr(tp, i) + 1, NULL, 0, 1); // disable sensor i
+            readBytesSPI(SPI1, tactile_sensor_addr(tp, i)>>1, 0, NULL);
+            // udelay(SLEEP_TIME); // test
+          }
+      }
+      else if (tactile_port == 3)
+      {
+
+      }
+      else
+      {
+        *tps = TPS_BCAST_ENABLE;
+        tactile_i2c_async_start(tp, BCAST_ENABLE_ADDR, NULL, 0);  
+      }
       break;
     case TPS_BCAST_ENABLE:
       tactile_i2c_async_tick(tp);
@@ -944,7 +913,7 @@ void tactile_poll_nonblocking_tick(const uint8_t tactile_port)
       break;
     case TPS_SENSOR_SAMPLING:
       // wait 3 ms
-      if (SYSTIME - state_start_time_us[tp] > 3000) {
+      if (SYSTIME - state_start_time_us[tp] > 3000) { // CORRECT
         active_sensor_idx[tp] = 0;
         const uint8_t sensor_addr = tactile_sensor_addr(tp, 0);
         *tps = TPS_SELECT_SENSOR;
