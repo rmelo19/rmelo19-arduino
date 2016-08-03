@@ -715,8 +715,8 @@ void takktile_poll(const uint_fast8_t port)
 
     const uint_fast8_t state_sensor_idx = port * SENSORS_PER_FINGER +
                                           sensor_idx;
-    g_state.takktile_pressures   [state_sensor_idx] = pressure;
-    g_state.takktile_temperatures[state_sensor_idx] = temperature;
+    handState.takktile_pressures   [state_sensor_idx] = pressure;
+    handState.takktile_temperatures[state_sensor_idx] = temperature;
 
     // de-activate this sensor
     if (takktile_i2c(port, sensor_addr | I2C_READ, msg, 1) != I2C_SUCCESS)
@@ -911,7 +911,7 @@ void takktile_poll_nonblocking_tick(const uint8_t takktile_port)
       for (int i = 0; i < 9; i++)
       {
         const uint_fast8_t state_sensor_idx = ((uint8_t) tp) * SENSORS_PER_FINGER + i;
-        printf("%3d ", g_state.takktile_pressures[state_sensor_idx]);
+        printf("%3d ", handState.takktile_pressures[state_sensor_idx]);
       }
       printf("\n");
 
@@ -988,8 +988,8 @@ void takktile_poll_nonblocking_tick(const uint8_t takktile_port)
         const uint16_t temperature = ((uint16_t)p[2] << 2) | (p[3] >> 6);
         const uint_fast8_t state_sensor_idx = tp * SENSORS_PER_FINGER +
                                               active_sensor_idx[tp];
-        g_state.takktile_pressures   [state_sensor_idx] = pressure;
-        g_state.takktile_temperatures[state_sensor_idx] = temperature;
+        handState.takktile_pressures   [state_sensor_idx] = pressure;
+        handState.takktile_temperatures[state_sensor_idx] = temperature;
 
         // printf("check\n");
         //printf("port %d sensor 0x%02x pressure %06d  temperature %06d\r\n",

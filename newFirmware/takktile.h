@@ -3,6 +3,8 @@
 
 #include "reflex.h"
 #include "spiFunc.h"
+#include "i2cFunc.h"
+
 #include <stdint.h>
 #include "async_poll.h"
 #include "stm32f4xx.h"
@@ -72,27 +74,36 @@
 #define I2C_TRISE (APB_MHZ * 200 / 1000 + 1)
 #define I2C_READ 1
 
+#define SLEEP_TIME 0
+#define TACTILE_I2C_SUCCESS 0xffffffff
+#define TACTILE_I2C_FAIL    0xfffffffe
+
 
 void takktileInit();
-void takktile_poll(const uint_fast8_t port);
+void resetConverter(void);
 void takktile_poll_nonblocking_tick(const uint8_t takktile_port);
-void takktile_bridge_poll_nonblocking(const uint8_t takktile_bridge);
 
 typedef enum
 {
-  TPS_IDLE = 0,
-  TPS_BCAST_ENABLE,
-  TPS_BCAST_START_SAMPLING,
-  TPS_BCAST_DISABLE,
-  TPS_SENSOR_SAMPLING,
-  TPS_SELECT_SENSOR,
-  TPS_TX_READ_DATA_CMD,
-  TPS_READ_DATA,
-  TPS_DESELECT_SENSOR,
-  TPS_DONE = ASYNC_POLL_DONE
-} takktile_async_poll_state_t;
+  STATE_ENABLE_ALL_SENSORS = 0,
+  STATE_START_CONVERSION,
+  STATE_DISABLE_ALL_SENSORS,
+  STATE_ENABLE_SENSOR,
+  STATE_SET_REGISTER,
+  STATE_READ_VALUES,
+  STATE_DISABLE_SENSOR,
+  STATE_WAIT = ASYNC_POLL_DONE
+} takktileAsyncPollState_t;
 
-extern takktile_async_poll_state_t takktile_poll_states[NUM_TACTILE_PORTS];
+uint8_t enableAllSensors(uint8_t takktileNumber);
+uint8_t startConversionSequence(uint8_t takktileNumber);
+uint8_t disableAllSensors(uint8_t takktileNumber);
+uint8_t enableSensor(uint8_t takktileNumber, uint8_t sensorIndex);
+uint8_t setRegister(uint8_t takktileNumber);
+uint8_t readValues(uint8_t takktileNumber, uint8_t sensorIndex);
+uint8_t disableSensor(uint8_t takktileNumber, uint8_t sensorIndex);
+
+extern takktileAsyncPollState_t takktilePollState[NUM_TACTILE_PORTS];
 
 #endif
 

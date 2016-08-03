@@ -3,8 +3,10 @@
 
 #include "./stm32/stm32f4xx.h"
 
-void systime_init();
 #define SYSTIME (TIM2->CNT)
+
+void systime_init();
+void udelay(int utime);
 
 #endif
 

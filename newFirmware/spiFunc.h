@@ -8,19 +8,41 @@
 // #include <stdint.h>
 #include "ports.h"
 
-#define ON                          1
-#define OFF                         0
+#define ON                                         1
+#define OFF                                        0
 
-#define PORTC_I2C_BRIDGE_RESET 14
+#define SC18IS601_I2C_CLOCK_369KHZ                 0x05
+#define SC18IS601_I2C_CLOCK_263KHZ                 0x07
+#define SC18IS601_I2C_CLOCK_204KHZ                 0x09
+#define SC18IS601_I2C_CLOCK_97KHZ                  0x13
+#define SC18IS601_I2C_CLOCK_7200HZ                 0xFF
 
-void udelay(int);
-int writeRegisterSPI(SPI_TypeDef* spiPort, uint8_t address, uint8_t registerAddress);
-int readBytesSPI(SPI_TypeDef* spiPort, uint8_t address, uint8_t numBytes, uint8_t* values);
-int writeBytesSPI(SPI_TypeDef* spiPort, uint8_t address, uint8_t* data, int len, int toggleAddress);
+#define SC18IS601_REGISTER_IO_CONFIG               0x00
+#define SC18IS601_REGISTER_IO_STATE                0x01
+#define SC18IS601_REGISTER_I2C_CLOCK               0x02
+#define SC18IS601_REGISTER_I2C_TIMEOUT             0x03
+#define SC18IS601_REGISTER_I2C_STATUS              0x04
+#define SC18IS601_REGISTER_I2C_ADDR                0x05
 
-uint8_t readSPIStatus(SPI_TypeDef * spiPort);
-int readBytesSPIAssert(SPI_TypeDef* spiPort, uint8_t address, uint8_t numBytes, volatile uint8_t* values);
-int readCommmand(SPI_TypeDef* spiPort,uint8_t address, uint8_t numBytes);
+#define SC18IS601_WRITE_REGISTER_COMMAND           0x20
+#define SC18IS601_READ_REGISTER_COMMAND            0x21
+#define SC18IS601_WRITE_N_BYTES_COMMAND            0x00
+#define SC18IS601_READ_N_BYTES_COMMAND             0x01
+#define SC18IS601_READ_BUFFER_COMMAND              0x06
+#define PORTC_I2C_BRIDGE_RESET                     14
+
+
+// SPI to I2C Converter Functions
+void resetConverter(void);
+uint8_t checkConverterIsBusy (uint8_t utime);
+uint8_t writeConverterRegister(uint8_t registerAddress, uint8_t data);
+uint8_t readConverterRegister(uint8_t registerAddress, uint8_t *data);
+
+uint8_t writeRegisterSPI(uint32_t* port, uint8_t address, uint8_t registerAddress);
+uint8_t readBytesSPI(uint32_t* port, uint8_t address, uint8_t numBytes, uint8_t* values);
+uint8_t writeBytesSPI(uint32_t* port, uint8_t address, uint8_t* data, int len, int toggleAddress);
+
+uint8_t readCommmand(SPI_TypeDef* spiPort,uint8_t address, uint8_t numBytes);
 void ledStatus(uint8_t status);
 void ledsPattern(int led1, int led2, int led3, int led4);
 

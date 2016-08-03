@@ -21,8 +21,9 @@ bin/takktile.o: takktile.c takktile.h reflex.h spiFunc.h \
  /usr/arm-none-eabi/include/sys/lock.h \
  /usr/arm-none-eabi/include/sys/types.h \
  /usr/arm-none-eabi/include/machine/types.h \
- /usr/arm-none-eabi/include/sys/stdio.h leds.h ports.h async_poll.h \
- /usr/lib/gcc/arm-none-eabi/4.9.3/include/stdbool.h dmxl.h state.h \
- delay.h enc.h i2cFunc.h reflex.h pin.h error.h leds.h stm32/stm32f4xx.h \
- /usr/arm-none-eabi/include/string.h \
- /usr/arm-none-eabi/include/sys/string.h state.h
+ /usr/arm-none-eabi/include/sys/stdio.h leds.h ports.h pin.h config.h \
+ leds.h error.h console.h dmxl.h \
+ /usr/lib/gcc/arm-none-eabi/4.9.3/include/stdbool.h state.h delay.h \
+ async_poll.h enc.h i2cFunc.h reflex.h imu.h fan.h enet.h \
+ stm32/stm32f4xx.h /usr/arm-none-eabi/include/string.h \
+ /usr/arm-none-eabi/include/sys/string.h dmxl.h state.h

@@ -345,7 +345,7 @@ void dmxl_process_ring(const uint_fast8_t dmxl_id)
         port->parser_state = DMXL_PS_ERROR;
         break;
       case DMXL_PS_ERROR:
-        g_state.dynamixel_error_status[i] = b; // save for global state
+        handState.dynamixel_error_status[i] = b; // save for global state
         port->rx_checksum += b;
         port->rx_pkt_writepos = 0;
         if (port->rx_pkt_len)
@@ -371,18 +371,18 @@ void dmxl_process_ring(const uint_fast8_t dmxl_id)
           switch (port->comms_state)
           {
             case DMXL_CS_POLL_STATE:
-              g_state.dynamixel_angles[i] =
+              handState.dynamixel_angles[i] =
                 (((uint16_t)g_dmxl_rx_pkt[i][1]) << 8) |
                 (((uint16_t)g_dmxl_rx_pkt[i][0])     ) ;
-              //printf("dmxl %d angle = %d\r\n", (int)i, (int)g_state.dynamixel_angles[i]);
-              g_state.dynamixel_speeds[i] =
+              //printf("dmxl %d angle = %d\r\n", (int)i, (int)handState.dynamixel_angles[i]);
+              handState.dynamixel_speeds[i] =
                 (((uint16_t)g_dmxl_rx_pkt[i][3]) << 8) |
                 (((uint16_t)g_dmxl_rx_pkt[i][2])     ) ;
-              g_state.dynamixel_loads[i] =
+              handState.dynamixel_loads[i] =
                 (((uint16_t)g_dmxl_rx_pkt[i][5]) << 8) |
                 (((uint16_t)g_dmxl_rx_pkt[i][4])     ) ;
-              g_state.dynamixel_voltages[i]     = g_dmxl_rx_pkt[i][6];
-              g_state.dynamixel_temperatures[i] = g_dmxl_rx_pkt[i][7];
+              handState.dynamixel_voltages[i]     = g_dmxl_rx_pkt[i][6];
+              handState.dynamixel_temperatures[i] = g_dmxl_rx_pkt[i][7];
               break;
             case DMXL_CS_POLL_DEBRIS:
               break;

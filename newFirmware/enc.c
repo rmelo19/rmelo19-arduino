@@ -1,130 +1,88 @@
 #include "enc.h"
 
-// GLOBAL VARIABLES
-enc_async_poll_state_t enc_poll_state = EPS_DONE;
+// GLOBAL ALL FILES VARIABLE
+enc_async_poll_state_t enc_poll_state[3] = {STATE_WAIT, STATE_WAIT, STATE_WAIT};
 
 void encInit()
 {
-  // change encoder I2C address
-  // uint8_t data[2] = {0x15, 0x04}; // 0b0000100 = 0x04 0b0010000 = 0x10 
-  // writeBytesSPI(SPI1, AS5048_7BIT_ADDRESS, data, 2, 0);
-
   // initializing encoders state
   for (int i = 0; i < NUM_ENC; i++)
   {
-    g_state.encoders[i] = 0;
+    handState.encoders[i] = 0;
   }
 }
 
 /*
-void enc_poll_nonblocking_tick(const uint8_t bogus __attribute__((unused)))
-  Description: Reads encoders values.
+void enc_poll_nonblocking_tick(const uint8_t encoderNumber)
+  Description: Updates the state machine, which has 3 states:
+      ENCODER_STATE_SET_REGISTER: set the right encoder regis-
+      ter
+      ENCODER_STATE_READ_VALUES: read encoder values
+      ENCODER_STATE_WAIT: skips the encoder while other state
+      machines are not finished
 
   Returns: void
-
+  
   Encoders connections:
     0 -> Port I2C1
     1 -> Port SPI
     2 -> Port I2C3
 */
-void enc_poll_nonblocking_tick(const uint8_t bogus __attribute__((unused)))
+void enc_poll_nonblocking_tick(const uint8_t encoderNumber)
 {
-  static uint8_t i2cPort1Updated = 0;
-  static uint8_t i2cPort3Updated = 0;
-  int result;
-
-  switch(enc_poll_state)
+  enc_async_poll_state_t* state = (enc_async_poll_state_t*)&(enc_poll_state[encoderNumber]);
+  switch(*state)
   {
-    case EPS_DONE:
-        result = readEncoderSPI(SPI1, 1, SPI_TIMEOUT); // (spiPort, encoderNumber, timeout)
-        
-        if (isBusyI2CPort(I2C3) && isBusyI2CPort(I2C1))
-        {
-          printf("neither 0 nor 2\n");
-          enc_poll_state = EPS_I2C;
-          i2cPort1Updated = 0;
-          i2cPort3Updated = 0;
-        }
-        else if (!isBusyI2CPort(I2C3) && !isBusyI2CPort(I2C1))
-        {
-          printf("0 and 2, EPS_DONE\n");
-          result = readEncoderI2C(I2C1, 0, I2C_TIMEOUT);  // (i2cPort, encoderNumber, timeout)
-          printf("Second\n");
-          result = readEncoderI2C(I2C3, 2, I2C_TIMEOUT);  // (i2cPort, encoderNumber, timeout)
-          enc_poll_state = EPS_DONE;
-        } 
-        else if (!isBusyI2CPort(I2C1))
-        {
-          printf("0\n");
-          result = readEncoderI2C(I2C1, 0, I2C_TIMEOUT);  // (i2cPort, encoderNumber, timeout)
-          enc_poll_state = EPS_DONE;
-        }
-        else if (!isBusyI2CPort(I2C3))
-        {
-          printf("2\n");
-          result = readEncoderI2C(I2C3, 2, I2C_TIMEOUT);  // (i2cPort, encoderNumber, timeout)
-          enc_poll_state = EPS_DONE;
-        }      
+    case ENCODER_STATE_SET_REGISTER:
+      if (setEncoderRegister(encoderNumber, AS5048B_ANGLLSB_REG, SPI_TIMEOUT));
+        *state = ENCODER_STATE_READ_VALUES;
       break;
-    case EPS_I2C:
-        if (!isBusyI2CPort(I2C3) && !isBusyI2CPort(I2C1))
-        {
-          printf("0 and 2, EPS_I2C\n");
-          result = readEncoderI2C(I2C1, 0, I2C_TIMEOUT);  // (i2cPort, encoderNumber, timeout)
-          result = readEncoderI2C(I2C3, 2, I2C_TIMEOUT);  // (i2cPort, encoderNumber, timeout)
-          enc_poll_state = EPS_DONE;
-        } 
-        else if (!isBusyI2CPort(I2C1) && i2cPort1Updated == 0)
-        {
-          printf("0\n");
-          result = readEncoderI2C(I2C1, 0, I2C_TIMEOUT);  // (i2cPort, encoderNumber, timeout)
-          i2cPort1Updated = 1;
-          if (i2cPort3Updated == 1)
-            enc_poll_state = EPS_DONE;
-        }
-        else if (!isBusyI2CPort(I2C3) && i2cPort3Updated == 0)
-        {
-          printf("2\n");
-          result = readEncoderI2C(I2C3, 2, I2C_TIMEOUT);  // (i2cPort, encoderNumber, timeout)
-          i2cPort3Updated = 1;
-          if (i2cPort1Updated == 1)
-            enc_poll_state = EPS_DONE;
-        }
+    case ENCODER_STATE_READ_VALUES:
+      if(readEncoderValues(encoderNumber, SPI_TIMEOUT));
+        *state = ENCODER_STATE_WAIT;
+      break;
+    case ENCODER_STATE_WAIT:
       break;
     default:
-      enc_poll_state = EPS_DONE; // shouldn't get here
+      *state = ENCODER_STATE_WAIT;
       break;
-
-      printf("%d\n", result); // rmelo19, to correct, change to error checking.
   }
 }
 
-int checkTimeout(int utime, int initialTime)
+uint8_t setEncoderRegister(uint8_t encoderNumber, uint8_t encoderRegister,int timeout)
 {
- return (SYSTIME - initialTime > utime);
+  uint8_t result = 0;
+  switch ((uint32_t) handPorts.encoder[encoderNumber])
+  {
+    case I2C1_BASE:
+      result = writeRegisterI2C(handPorts.encoder[encoderNumber], handPorts.encoderI2CAddress[encoderNumber], encoderRegister);
+    break;
+    case I2C3_BASE:
+      result = writeRegisterI2C(handPorts.encoder[encoderNumber], handPorts.encoderI2CAddress[encoderNumber], encoderRegister);
+    break;
+    case SPI1_BASE:
+      result = writeRegisterSPI(handPorts.encoder[encoderNumber], handPorts.encoderI2CAddress[encoderNumber], encoderRegister);
+    break;
+  }
+  return result;
 }
 
-int readEncoderI2C(I2C_TypeDef* i2cPort, uint8_t encoderNumber, int timeout)
+uint8_t readEncoderValues(uint8_t encoderNumber, int timeout)
 {
-  printf("Encoder %d: ", encoderNumber);
-  writeRegisterI2C(i2cPort, AS5048_7BIT_ADDRESS, AS5048B_ANGLLSB_REG);
+  uint8_t result = 0;
   uint8_t valueRead[2];
-  readBytesI2C(i2cPort, AS5048_7BIT_ADDRESS, 2, valueRead);
-  g_state.encoders[encoderNumber] = (((uint16_t) valueRead[0] << 6) + ((uint16_t) (valueRead[1] & 0x3F))); 
-  printf("%d\n" , g_state.encoders[encoderNumber]);
-
-
-  return 0;
-}
-
-int readEncoderSPI(SPI_TypeDef* spiPort, uint8_t encoderNumber, int timeout)
-{
-  printf("Encoder %d: ", encoderNumber);
-  writeRegisterSPI(spiPort, AS5048_7BIT_ADDRESS_SPI, AS5048B_ANGLLSB_REG);
-  uint8_t valueRead[2];
-  readBytesSPI(spiPort, AS5048_7BIT_ADDRESS_SPI, 2, valueRead);
-  g_state.encoders[encoderNumber] = (((uint16_t) valueRead[0] << 6) + ((uint16_t) (valueRead[1] & 0x3F)));
-  printf("%d\n", g_state.encoders[encoderNumber]);
-
-  return 0;
+  switch ((uint32_t) handPorts.encoder[encoderNumber])
+  {
+    case I2C1_BASE:
+      result = readBytesI2C(handPorts.encoder[encoderNumber], handPorts.encoderI2CAddress[encoderNumber], 2, valueRead);
+    break;
+    case I2C3_BASE:
+      result = readBytesI2C(handPorts.encoder[encoderNumber], handPorts.encoderI2CAddress[encoderNumber], 2, valueRead);
+    break;
+    case SPI1_BASE:
+      result = readBytesSPI(handPorts.encoder[encoderNumber], handPorts.encoderI2CAddress[encoderNumber], 2, valueRead);
+    break;
+  }
+  handState.encoders[encoderNumber] = (((uint16_t) valueRead[0] << 6) + ((uint16_t) (valueRead[1] & 0x3F)));
+  return result;
 }

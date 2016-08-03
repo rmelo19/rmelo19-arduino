@@ -744,7 +744,7 @@ void takktile_poll_nonblocking_tick(const uint8_t takktile_port)
         // for (int i = 0; i < 9; i++)
         // {
         //   index = 0 * SENSORS_PER_FINGER + i;
-        //   printf("%3d ", g_state.takktile_pressures[index]);
+        //   printf("%3d ", handState.takktile_pressures[index]);
         // }
 
         // printf("\n");
@@ -764,9 +764,9 @@ void takktile_poll_nonblocking_tick(const uint8_t takktile_port)
           udelay(sleepTime);
 
           index = tp * SENSORS_PER_FINGER + i;
-          g_state.takktile_pressures[index] = 510 - (values[0]<200 ? ((uint16_t)values[0] + 255) : ((uint16_t)values[0]));
-          g_state.takktile_temperatures[index] = ((uint16_t)values[2] << 2) | (values[3] >> 6);
-          printf("%3d ", g_state.takktile_pressures[index]);
+          handState.takktile_pressures[index] = 510 - (values[0]<200 ? ((uint16_t)values[0] + 255) : ((uint16_t)values[0]));
+          handState.takktile_temperatures[index] = ((uint16_t)values[2] << 2) | (values[3] >> 6);
+          printf("%3d ", handState.takktile_pressures[index]);
 
           readBytesSPI(SPI1, addresses[i] >> 1, 1, aux);
           udelay(sleepTime);
@@ -779,7 +779,7 @@ void takktile_poll_nonblocking_tick(const uint8_t takktile_port)
         // for (int i = 0; i < 9; i++)
         // {
         //   index = 1 * SENSORS_PER_FINGER + i;
-        //   printf("%3d ", g_state.takktile_pressures[index]);
+        //   printf("%3d ", handState.takktile_pressures[index]);
         // }
 
         // printf("\n");
@@ -804,8 +804,8 @@ void takktile_poll_nonblocking_tick(const uint8_t takktile_port)
           //   readBytesSPI(SPI1, BAROM_ADDR >> 1, 1, values);      // read 4 bytes
           //   // udelay(SLEEP_TIME); // test
           //   index = tp * SENSORS_PER_FINGER + i;
-          //   g_state.takktile_pressures   [index] = 510 - (values[0]<200 ? ((uint16_t)values[0] + 255) : ((uint16_t)values[0]));
-          //   g_state.takktile_temperatures[index] = ((uint16_t)values[2] << 2) | (values[3] >> 6);;
+          //   handState.takktile_pressures   [index] = 510 - (values[0]<200 ? ((uint16_t)values[0] + 255) : ((uint16_t)values[0]));
+          //   handState.takktile_temperatures[index] = ((uint16_t)values[2] << 2) | (values[3] >> 6);;
           //   // writeBytesSPI(SPI1, takktile_sensor_addr(tp, i) + 1, NULL, 0, 1); // disable sensor i
           //   readBytesSPI(SPI1, takktile_sensor_addr(tp, i)>>1, 0, NULL);
           //   // udelay(SLEEP_TIME); // test
@@ -822,7 +822,7 @@ void takktile_poll_nonblocking_tick(const uint8_t takktile_port)
         for (int i = 0; i < 9; i++)
         {
           const uint_fast8_t state_sensor_idx = ((uint8_t) tp) * SENSORS_PER_FINGER + i;
-          printf("%3d ", g_state.takktile_pressures[state_sensor_idx]);
+          printf("%3d ", handState.takktile_pressures[state_sensor_idx]);
         }
 
         printf("\n");
@@ -897,8 +897,8 @@ void takktile_poll_nonblocking_tick(const uint8_t takktile_port)
         const uint16_t pressure = 510 - (p[0]<200 ? ((uint16_t)p[0] + 255) : ((uint16_t)p[0]));
         const uint16_t temperature = ((uint16_t)p[2] << 2) | (p[3] >> 6);
         const uint_fast8_t state_sensor_idx = tp * SENSORS_PER_FINGER + active_sensor_idx[tp];
-        g_state.takktile_pressures   [state_sensor_idx] = pressure;
-        g_state.takktile_temperatures[state_sensor_idx] = temperature;
+        handState.takktile_pressures   [state_sensor_idx] = pressure;
+        handState.takktile_temperatures[state_sensor_idx] = temperature;
 
         //printf("port %d sensor 0x%02x pressure %06d  temperature %06d\r\n",
         //       tp, sensor_addr, pressure, temperature);

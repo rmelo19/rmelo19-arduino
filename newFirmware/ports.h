@@ -1,6 +1,12 @@
 #ifndef PORTS_H
 #define PORTS_H
 
+#include "reflex.h"
+#include <stdint.h>
+#include "./stm32/stm32f4xx.h"
+#include "pin.h"
+#include "config.h"
+
 /////////////////////////////////////////////////////////////////////////
 // I2C SETUP
 //
@@ -38,5 +44,18 @@
 #define PORTC_BRIDGE1_MOSI             3
 #define PORTD_BRIDGE1_SCLK             3
 #define PORTA_BRIDGE1_INT              0
+
+typedef struct
+{
+  uint32_t *takktile[NUM_SENSORS];
+  uint32_t *encoder[NUM_ENC];
+  uint32_t *imu[NUM_IMUS];
+  uint8_t encoderI2CAddress[NUM_ENC];
+} ports_t;
+
+extern volatile ports_t handPorts;
+
+void portsInit();
+
 
 #endif

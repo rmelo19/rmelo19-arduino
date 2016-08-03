@@ -23,7 +23,7 @@ bin/dmxl.o: dmxl.c dmxl.h \
  /usr/arm-none-eabi/include/sys/stdio.h stm32/stm32f4xx.h \
  stm32/core_cm4.h stm32/core_cmInstr.h stm32/core_cmFunc.h \
  stm32/core_cm4_simd.h state.h reflex.h systime.h delay.h async_poll.h \
- takktile.h spiFunc.h leds.h ports.h stm32/stm32f4xx.h pin.h error.h \
+ takktile.h spiFunc.h leds.h ports.h pin.h config.h leds.h error.h \
+ console.h fan.h enc.h i2cFunc.h reflex.h enet.h stm32/stm32f4xx.h \
  /usr/arm-none-eabi/include/string.h \
- /usr/arm-none-eabi/include/sys/string.h state.h enc.h i2cFunc.h reflex.h \
- leds.h
+ /usr/arm-none-eabi/include/sys/string.h dmxl.h imu.h state.h

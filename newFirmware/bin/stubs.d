@@ -28,6 +28,7 @@ bin/stubs.o: stubs.c /usr/arm-none-eabi/include/stdlib.h \
  stm32/core_cmFunc.h stm32/core_cm4_simd.h systime.h config.h leds.h \
  error.h dmxl.h /usr/lib/gcc/arm-none-eabi/4.9.3/include/stdbool.h \
  state.h reflex.h delay.h async_poll.h takktile.h spiFunc.h leds.h \
- ports.h stm32/stm32f4xx.h pin.h /usr/arm-none-eabi/include/string.h \
- /usr/arm-none-eabi/include/sys/string.h state.h enc.h i2cFunc.h reflex.h \
+ ports.h pin.h i2cFunc.h stm32/stm32f4xx.h \
+ /usr/arm-none-eabi/include/string.h \
+ /usr/arm-none-eabi/include/sys/string.h state.h enc.h reflex.h imu.h \
  fan.h enet.h dmxl.h

@@ -20,4 +20,10 @@ bin/spiFunc.o: spiFunc.c spiFunc.h stm32/stm32f4xx.h stm32/core_cm4.h \
  /usr/arm-none-eabi/include/sys/lock.h \
  /usr/arm-none-eabi/include/sys/types.h \
  /usr/arm-none-eabi/include/machine/types.h \
- /usr/arm-none-eabi/include/sys/stdio.h leds.h ports.h
+ /usr/arm-none-eabi/include/sys/stdio.h leds.h ports.h reflex.h pin.h \
+ config.h leds.h error.h console.h dmxl.h \
+ /usr/lib/gcc/arm-none-eabi/4.9.3/include/stdbool.h state.h delay.h \
+ async_poll.h takktile.h i2cFunc.h stm32/stm32f4xx.h \
+ /usr/arm-none-eabi/include/string.h \
+ /usr/arm-none-eabi/include/sys/string.h state.h enc.h reflex.h imu.h \
+ fan.h enet.h dmxl.h

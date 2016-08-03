@@ -12,3 +12,9 @@ void systime_init()
   TIM2->CR1 = TIM_CR1_CEN; // start counter
 }
 
+void udelay(int utime)
+{
+  int mytime = SYSTIME;
+  while(SYSTIME - mytime < utime);
+}
+

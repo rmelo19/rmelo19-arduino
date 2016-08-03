@@ -494,7 +494,12 @@ bool eth_dispatch_udp(const uint8_t *data, const uint16_t len)
   {
     const uint8_t cmd = payload[0];
     //printf("  enet rx cmd = 0x%02x\r\n", cmd);
-    if (cmd == 1 && payload_len >= 5)
+    if (cmd == 0) // CORRECT
+    {
+      printf("Received printStatusCommand...\n");
+
+    }
+    else if (cmd == 1 && payload_len >= 5)
     {
       /*
       printf("    modes: %d %d %d %d\r\n",
@@ -529,11 +534,16 @@ bool eth_dispatch_udp(const uint8_t *data, const uint16_t len)
 
 // todo: be smarter about multicast group choice
 #define MCAST_IP 0xe000007c
+#define MCAST_IP 0xe000007c
 
 void enetTX()
 {
-  volatile state_t tx_state = g_state; // make a local copy to ensure coherence
+  volatile state_t tx_state = handState; // make a local copy to ensure coherence
   enet_send_udp_mcast(MCAST_IP, 11333, (uint8_t *)&tx_state, sizeof(tx_state));
+
+  // if ... // CORRECT, this is to send debug information via serial
+  // volatile state_t tx_status = handStatus; // make a local copy to ensure coherence
+  // enet_send_udp_mcast(MCAST_IP, 11333, (uint8_t *)&tx_state, sizeof(tx_state));
 }
 
 void ethernetService(void)

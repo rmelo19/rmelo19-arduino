@@ -35,8 +35,8 @@ int main()
   //   readBytesSPI(SPI1, BAROM_ADDR >> 1, 1, values);      // read 4 bytes
   //   // udelay(SLEEP_TIME); // test
   //   index = tp * SENSORS_PER_FINGER + i;
-  //   g_state.takktile_pressures   [index] = 510 - (values[0]<200 ? ((uint16_t)values[0] + 255) : ((uint16_t)values[0]));
-  //   g_state.takktile_temperatures[index] = ((uint16_t)values[2] << 2) | (values[3] >> 6);;
+  //   handState.takktile_pressures   [index] = 510 - (values[0]<200 ? ((uint16_t)values[0] + 255) : ((uint16_t)values[0]));
+  //   handState.takktile_temperatures[index] = ((uint16_t)values[2] << 2) | (values[3] >> 6);;
   //   // writeBytesSPI(SPI1, takktile_sensor_addr(tp, i) + 1, NULL, 0, 1); // disable sensor i
   //   readBytesSPI(SPI1, takktile_sensor_addr(tp, i)>>1, 0, NULL);
   //   // udelay(SLEEP_TIME); // test

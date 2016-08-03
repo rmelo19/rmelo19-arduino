@@ -55,6 +55,7 @@ void errorService() {
   // The time (in uS) when the current flash started.
   static uint32_t flashStartTime = 0;
 
+  // err_set(ERR_TAC_0_PROBLEM + takktile_port);
 
   // We should continue with our current display
   if (displaying)
@@ -95,10 +96,12 @@ void errorService() {
     setLEDs(errorIndex, flashIndex);
     return;
   }
-
   // Otherwise keep cycling and looking for an error
-  errorIndex++;
-  errorIndex %= ERR_NUMBER;
+  else
+  {
+    errorIndex++;
+    errorIndex %= ERR_NUMBER;
+  }
   return;
 }
 

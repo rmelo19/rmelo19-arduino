@@ -26,5 +26,5 @@ bin/enet.o: enet.c enet.h \
  systime.h stm32/stm32f4xx.h delay.h \
  /usr/lib/gcc/arm-none-eabi/4.9.3/include/stdbool.h dmxl.h \
  stm32/stm32f4xx.h state.h systime.h delay.h async_poll.h takktile.h \
- reflex.h spiFunc.h leds.h ports.h pin.h error.h state.h dmxl.h enc.h \
- i2cFunc.h reflex.h leds.h
+ reflex.h spiFunc.h leds.h ports.h pin.h config.h leds.h error.h \
+ console.h dmxl.h fan.h enc.h i2cFunc.h reflex.h enet.h imu.h state.h

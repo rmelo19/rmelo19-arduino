@@ -11,6 +11,7 @@
 #include "takktile.h"
 #include "dmxl.h"
 #include "enc.h"
+#include "imu.h"
 #include "systime.h"
 
 
